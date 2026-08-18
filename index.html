@@ -187,8 +187,38 @@
             cursor: pointer;
         }
 
-        .content-prev {
+        /* TABS */
+        .tabs-container {
+            display: flex;
+            background: var(--card-bg);
+            border-bottom: 1px solid #ddd;
+            position: sticky;
+            top: 58px; /* Below the header */
+            z-index: 9;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            font-weight: bold;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .tab-btn.active {
+            color: var(--dark-blue);
+            border-bottom-color: var(--primary-blue);
+        }
+        .tab-content {
+            display: none;
             padding: 20px;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        .tab-content.active {
+            display: block;
         }
 
         .user-badge {
@@ -372,6 +402,19 @@
             color: #a5d8ff;
         }
 
+        /* Links de Transparência */
+        .link-relatorio {
+            color: #0056b3;
+            text-decoration: none;
+            font-size: 13px;
+        }
+        .link-relatorio:hover {
+            text-decoration: underline;
+        }
+        .list-relatorios div {
+            margin-bottom: 12px;
+        }
+
     </style>
 </head>
 <body>
@@ -432,11 +475,17 @@
     <div id="view-prev" class="view">
         <div class="header-prev">
             <button class="btn-voltar" onclick="openHome()">←</button>
-            <h2 style="font-size: 18px;">Previdência e Simulação</h2>
+            <h2 style="font-size: 18px;">Previdência</h2>
         </div>
 
-        <div class="content-prev">
-            
+        <!-- TABS NAV -->
+        <div class="tabs-container">
+            <button class="tab-btn active" onclick="switchTab('simulacao')" id="btn-simulacao">Simulação</button>
+            <button class="tab-btn" onclick="switchTab('transparencia')" id="btn-transparencia">Transparência</button>
+        </div>
+
+        <!-- TAB: SIMULAÇÃO -->
+        <div id="tab-simulacao" class="tab-content active">
             <div class="user-badge">
                 <span><strong>Idade:</strong> 32 anos</span>
                 <span id="ui-badge-tempo"><strong>Contribuição:</strong> 5 meses</span>
@@ -491,7 +540,6 @@
                 </div>
                 <p style="font-size:11px; color:#666; margin-bottom:15px;">Com a carreira ativa, o sistema recalcula sua faixa anualmente (progressão da Matriz 1 para Matriz 2 após 3 anos).</p>
                 
-                <!-- NOVO: Simulação do Zero -->
                 <div class="input-group checkbox-group" style="background: #f0f9ff;">
                     <input type="checkbox" id="toggleHistorico" onchange="toggleHistoricoInput(); recalcularBase();">
                     <label for="toggleHistorico">Simular do Zero (Data de Ingresso)</label>
@@ -501,7 +549,6 @@
                     <input type="date" id="inputDataIngresso" onchange="recalcularBase()">
                     <p style="font-size:11px; color:#666; margin-top:5px;">Ao definir uma data, o sistema recalculará retroativamente o saldo que você já deveria ter acumulado até hoje.</p>
                 </div>
-                <!-- FIM NOVO -->
 
                 <div class="input-group" style="margin-top: 15px;">
                     <label>Salário Bruto Base Fixo (R$)</label>
@@ -541,8 +588,68 @@
                     *Atenção: A idade mínima para aposentadoria é de 60 anos (Homem). O valor mensal acima simula o benefício caso o saldo projetado fosse convertido em renda nesta data.
                 </div>
             </div>
-
         </div>
+
+        <!-- TAB: TRANSPARÊNCIA E RELATÓRIOS -->
+        <div id="tab-transparencia" class="tab-content">
+            <h2 style="font-size: 18px; margin-bottom: 15px; color: var(--dark-blue);">Portal de Investimentos (Funaprev)</h2>
+            <div class="card-info" style="padding-top: 10px;">
+                <p style="font-size: 13px; margin-bottom: 20px; color: var(--text-light);">Acesse os documentos oficiais e acompanhe a rentabilidade e composição da carteira de investimentos da Funaprev.</p>
+                
+                <a href="https://www.funape.pe.gov.br/transparencia/investimentos" target="_blank" style="display: inline-block; margin-bottom: 25px; color: #fff; background-color: var(--primary-blue); padding: 10px 15px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 14px; width: 100%; text-align: center;">🌐 Acessar Portal Geral</a>
+
+                <div class="list-relatorios" style="display: flex; flex-direction: column;">
+                    
+                    <div>
+                        <strong style="font-size: 14px; color: var(--dark-blue);">Apresentação geral de Resultados da Carteira</strong><br>
+                        <a href="https://drive.expresso.pe.gov.br/s/MnSfUzGeEOUOWzU" target="_blank" class="link-relatorio">2026</a> <span style="color:#ccc;">|</span> <a href="https://drive.expresso.pe.gov.br/s/RnfvnCCxdDem6Vn" target="_blank" class="link-relatorio">Anos anteriores</a>
+                    </div>
+                    
+                    <div>
+                        <strong style="font-size: 14px; color: var(--dark-blue);">Composição da Carteira</strong><br>
+                        <a href="https://drive.expresso.pe.gov.br/s/P9R3pbw9sYUUbNC" target="_blank" class="link-relatorio">2026</a> <span style="color:#ccc;">|</span> <a href="https://drive.expresso.pe.gov.br/s/bTUiTqxqcxLRXCI" target="_blank" class="link-relatorio">Anos anteriores</a>
+                    </div>
+                    
+                    <div>
+                        <strong style="font-size: 14px; color: var(--dark-blue);">Relatórios Detalhados da Carteira</strong><br>
+                        <a href="https://drive.expresso.pe.gov.br/s/fzwJBtodeXKs6UR" target="_blank" class="link-relatorio">2026</a> <span style="color:#ccc;">|</span> <a href="https://drive.expresso.pe.gov.br/s/Owa5KXz66EWscZt" target="_blank" class="link-relatorio">Anos anteriores</a>
+                    </div>
+                    
+                    <div>
+                        <strong style="font-size: 14px; color: var(--dark-blue);">Relatório Anual da Carteira</strong><br>
+                        <a href="https://drive.expresso.pe.gov.br/s/kBM4XMuUMf2Vhvw" target="_blank" class="link-relatorio">2025</a> <span style="color:#ccc;">|</span> <a href="https://drive.expresso.pe.gov.br/s/0r7QVGVfz8iiex8" target="_blank" class="link-relatorio">Anos anteriores</a>
+                    </div>
+                    
+                    <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
+                    
+                    <div>
+                        <a href="https://drive.expresso.pe.gov.br/s/PCt0kPrQKsiDzG8" target="_blank" class="link-relatorio" style="display: block; margin-bottom: 12px; font-size: 14px;">📄 Relatórios de Diligências</a>
+                        <a href="https://drive.expresso.pe.gov.br/s/jT1kNzcPxydo07f" target="_blank" class="link-relatorio" style="display: block; margin-bottom: 12px; font-size: 14px;">📄 Regulamento dos Fundos</a>
+                        <a href="https://drive.expresso.pe.gov.br/s/tg4MWAkxwCeb8re" target="_blank" class="link-relatorio" style="display: block; margin-bottom: 12px; font-size: 14px;">📄 Edital de Credenciamento</a>
+                        <a href="https://drive.expresso.pe.gov.br/s/EMrN6CDs2ZWn8KC" target="_blank" class="link-relatorio" style="display: block; margin-bottom: 12px; font-size: 14px;">📄 Credenciamento de Instituições</a>
+                        <a href="https://drive.expresso.pe.gov.br/s/8nlHoYzYdI7e0UB" target="_blank" class="link-relatorio" style="display: block; font-size: 14px;">📄 Instituições Credenciadas</a>
+                    </div>
+
+                    <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
+
+                    <div>
+                        <strong style="font-size: 14px; color: var(--dark-blue);">Autorização de Aplicação e Resgate - APR</strong><br>
+                        <a href="https://drive.expresso.pe.gov.br/s/0r7QVGVfz8iiex8" target="_blank" class="link-relatorio">2026</a> <span style="color:#ccc;">|</span> <a href="https://drive.expresso.pe.gov.br/s/YUfegzsP2yiXEwF" target="_blank" class="link-relatorio">Anos anteriores</a>
+                    </div>
+
+                    <div>
+                        <strong style="font-size: 14px; color: var(--dark-blue);">Demonstrativo das Aplicações (DAIR)</strong><br>
+                        <a href="https://drive.expresso.pe.gov.br/s/Us8cjxSeojbzMYR" target="_blank" class="link-relatorio">2026</a> <span style="color:#ccc;">|</span> <a href="https://drive.expresso.pe.gov.br/s/GaCEDugD91L1Brk" target="_blank" class="link-relatorio">Anos anteriores</a>
+                    </div>
+
+                    <div>
+                        <strong style="font-size: 14px; color: var(--dark-blue);">Relatório de Aderência à Política</strong><br>
+                        <a href="https://drive.expresso.pe.gov.br/s/FxWPHrDH5Q1LAWZ" target="_blank" class="link-relatorio">2024</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <!-- Navegação Inferior -->
@@ -601,7 +708,7 @@
             return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         };
 
-        // --- NAVEGAÇÃO SPA ---
+        // --- NAVEGAÇÃO SPA & TABS ---
         function openPrevidencia() {
             document.getElementById('view-home').classList.remove('active');
             document.getElementById('view-prev').classList.add('active');
@@ -613,6 +720,19 @@
             document.getElementById('view-prev').classList.remove('active');
             document.getElementById('view-home').classList.add('active');
             window.scrollTo(0, 0);
+        }
+
+        function switchTab(tabId) {
+            // Reset buttons
+            document.getElementById('btn-simulacao').classList.remove('active');
+            document.getElementById('btn-transparencia').classList.remove('active');
+            // Reset contents
+            document.getElementById('tab-simulacao').classList.remove('active');
+            document.getElementById('tab-transparencia').classList.remove('active');
+            
+            // Set active
+            document.getElementById('btn-' + tabId).classList.add('active');
+            document.getElementById('tab-' + tabId).classList.add('active');
         }
 
         function toggleCustomSim() {
@@ -640,7 +760,7 @@
             // 1. Calcular Histórico se Ativo
             if (usarHistorico && dataIngressoInput) {
                 let dataIngresso = new Date(dataIngressoInput);
-                let hoje = new Date(); // Pode ser substituído por uma data fixa do protótipo se desejar
+                let hoje = new Date(); 
                 
                 let mesesPassados = (hoje.getFullYear() - dataIngresso.getFullYear()) * 12 + (hoje.getMonth() - dataIngresso.getMonth());
                 if (mesesPassados < 0) mesesPassados = 0;
