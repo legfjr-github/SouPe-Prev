@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SouPE+ - Protótipo Previdência</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-blue: #63C5F1;
+            --dark-blue: #1A365D;
+            --bg-color: #F0F2F5;
+            --text-main: #333;
+            --text-light: #666;
+            --card-bg: #FFFFFF;
+            --success: #28A745;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            overflow-x: hidden;
+        }
+
+        .view {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+            padding-bottom: 70px;
+        }
+        .view.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* HOME VIEW */
+        .header-home {
+            background-color: var(--primary-blue);
+            padding: 20px;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            color: #002D5A;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            font-weight: bold;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .logo-icon {
+            width: 20px; height: 20px;
+            background: conic-gradient(from 90deg, red, yellow, green, blue);
+            border-radius: 4px;
+        }
+
+        .btn-sair {
+            background: none;
+            border: none;
+            color: #002D5A;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .user-greeting {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .vinculo-card-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        .vinculo-card {
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 12px;
+            flex: 1;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .vinculo-card h3 {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-bottom: 10px;
+        }
+
+        .cracha-card {
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 12px;
+            width: 90px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            font-size: 12px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .services-section {
+            padding: 20px;
+        }
+
+        .services-section h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .service-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 110px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        .service-card:active {
+            transform: scale(0.97);
+        }
+
+        .service-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .service-title {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* PREVIDÊNCIA VIEW */
+        .header-prev {
+            background-color: var(--card-bg);
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .btn-voltar {
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: var(--dark-blue);
+            cursor: pointer;
+        }
+
+        .content-prev {
+            padding: 20px;
+        }
+
+        .user-badge {
+            background: #e0f2fe;
+            color: var(--dark-blue);
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-info {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .card-info h3 {
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: var(--dark-blue);
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        .info-row.highlight {
+            font-weight: bold;
+            font-size: 16px;
+            color: var(--dark-blue);
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed #ddd;
+        }
+
+        .simulator-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .btn-sim {
+            flex: 1;
+            min-width: 80px;
+            padding: 10px;
+            background: #e0f2fe;
+            border: 1px solid var(--primary-blue);
+            color: var(--dark-blue);
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+        }
+        .btn-sim.active {
+            background: var(--dark-blue);
+            color: white;
+            border-color: var(--dark-blue);
+        }
+
+        .custom-sim-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .custom-sim-box.active {
+            display: block;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+        .input-group label {
+            display: block;
+            font-size: 12px;
+            color: var(--text-light);
+            margin-bottom: 5px;
+        }
+        .input-group input[type="number"], .input-group input[type="date"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .input-group input:disabled {
+            background-color: #e9ecef;
+            cursor: not-allowed;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #fff;
+            padding: 10px;
+            border: 1px solid #cce5ff;
+            border-radius: 6px;
+        }
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+        }
+        .checkbox-group label {
+            font-size: 13px;
+            font-weight: bold;
+            color: var(--dark-blue);
+            margin: 0;
+        }
+
+        .btn-action {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background: var(--dark-blue);
+            color: white;
+            text-align: center;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 250px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: var(--dark-blue);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+        }
+
+        .nav-item {
+            color: #8fa3b8;
+            text-align: center;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .nav-item.active {
+            color: white;
+            font-weight: bold;
+        }
+        .nav-item i {
+            display: block;
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .alerta-idade {
+            font-size: 11px;
+            background: rgba(255,255,255,0.1);
+            padding: 8px;
+            border-radius: 6px;
+            margin-top: 10px;
+            color: #a5d8ff;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- TELA: HOME -->
+    <div id="view-home" class="view active">
+        <div class="header-home">
+            <div class="top-bar">
+                <div class="logo">
+                    <div class="logo-icon"></div> SOU·PE
+                </div>
+                <button class="btn-sair">Sair ➔</button>
+            </div>
+            <div class="user-greeting">Olá, Luiz Emanoel</div>
+            <p style="font-size: 13px; margin-bottom: 15px;" id="home-badge-tempo">Idade: 32 anos | Tempo de Serviço: 5 meses</p>
+            <div class="vinculo-card-container">
+                <div class="vinculo-card">
+                    <h3>MEU VÍNCULO ATIVO</h3>
+                    <p><strong>Sec. De Administracao</strong></p>
+                    <p style="font-size: 14px; margin-top:5px;">Cargo: Ggov - Administrativa</p>
+                    <p style="font-size: 14px;">Matrícula: 3473643-02</p>
+                </div>
+                <div class="cracha-card">
+                    <div style="font-size: 24px; color: var(--primary-blue);">🪪</div>
+                    Crachá Digital
+                </div>
+            </div>
+        </div>
+
+        <div class="services-section">
+            <h2>📚 Serviços</h2>
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-icon">💸</div>
+                    <div class="service-title">Contracheque e Inf. de Rendimentos</div>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">📨</div>
+                    <div class="service-title">Fale com o RH</div>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">🩺</div>
+                    <div class="service-title">Perícia Médica ↗</div>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">📅</div>
+                    <div class="service-title">Agendamento Previdenciário ↗</div>
+                </div>
+                <div class="service-card" onclick="openPrevidencia()" style="border: 2px solid var(--primary-blue); background: #f0f9ff;">
+                    <div class="service-icon">📈</div>
+                    <div class="service-title" style="color: var(--dark-blue); font-weight: bold;">Simulador Previdência (Funaprev)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TELA: PREVIDÊNCIA -->
+    <div id="view-prev" class="view">
+        <div class="header-prev">
+            <button class="btn-voltar" onclick="openHome()">←</button>
+            <h2 style="font-size: 18px;">Previdência e Simulação</h2>
+        </div>
+
+        <div class="content-prev">
+            
+            <div class="user-badge">
+                <span><strong>Idade:</strong> 32 anos</span>
+                <span id="ui-badge-tempo"><strong>Contribuição:</strong> 5 meses</span>
+            </div>
+
+            <div class="card-info">
+                <h3>Resumo do seu Plano Atual (Funaprev)</h3>
+                <div class="info-row">
+                    <span>Nível Atual:</span>
+                    <strong id="ui-nivel-atual">Matriz 1 / R1</strong>
+                </div>
+                <div class="info-row">
+                    <span>Salário Considerado (Base):</span>
+                    <strong id="ui-salario">R$ 0,00</strong>
+                </div>
+                <div class="info-row">
+                    <span>Teto INSS Atual:</span>
+                    <strong id="ui-teto">R$ 0,00</strong>
+                </div>
+                <div class="info-row highlight">
+                    <span>Previdência Obrigatória (14%):</span>
+                    <strong id="ui-obrig-desc" style="color: #d9534f;">-R$ 0,00</strong>
+                </div>
+                <div style="font-size: 12px; color: #888; text-align: right;">Limitado ao teto do INSS</div>
+            </div>
+
+            <div class="card-info" style="border-left: 4px solid var(--success);">
+                <h3>Previdência Complementar</h3>
+                <div class="info-row">
+                    <span>Saldo Acumulado Atual:</span>
+                    <strong id="ui-saldo-atual">R$ 0,00</strong>
+                </div>
+                <div class="info-row">
+                    <span>Sua Contribuição Atual (8,5%):</span>
+                    <strong id="ui-comp-serv">R$ 0,00</strong>
+                </div>
+                <div class="info-row">
+                    <span>Aporte do Estado Atual (8,5%):</span>
+                    <strong id="ui-comp-est" style="color: var(--success);">+R$ 0,00</strong>
+                </div>
+                <div style="font-size: 12px; color: #888; text-align: right;">Incide sobre o valor que excede o teto</div>
+            </div>
+
+            <h2 style="font-size: 18px; margin: 25px 0 15px 0; color: var(--dark-blue);">Simulador de Aposentadoria</h2>
+            
+            <button class="btn-action" style="margin-bottom: 15px; background: white; color: var(--dark-blue); border: 1px solid var(--dark-blue);" onclick="toggleCustomSim()">⚙️ Personalizar Variáveis</button>
+            
+            <div class="custom-sim-box" id="box-custom-sim">
+                <div class="input-group checkbox-group">
+                    <input type="checkbox" id="toggleCarreira" onchange="recalcularBase()" checked>
+                    <label for="toggleCarreira">Simular progressão de carreira (GGOV-PE)</label>
+                </div>
+                <p style="font-size:11px; color:#666; margin-bottom:15px;">Com a carreira ativa, o sistema recalcula sua faixa anualmente (progressão da Matriz 1 para Matriz 2 após 3 anos).</p>
+                
+                <!-- NOVO: Simulação do Zero -->
+                <div class="input-group checkbox-group" style="background: #f0f9ff;">
+                    <input type="checkbox" id="toggleHistorico" onchange="toggleHistoricoInput(); recalcularBase();">
+                    <label for="toggleHistorico">Simular do Zero (Data de Ingresso)</label>
+                </div>
+                <div class="input-group" id="box-data-ingresso" style="display: none; padding-left: 20px; border-left: 2px solid var(--primary-blue); margin-left: 5px;">
+                    <label>Data de Ingresso no Estado</label>
+                    <input type="date" id="inputDataIngresso" onchange="recalcularBase()">
+                    <p style="font-size:11px; color:#666; margin-top:5px;">Ao definir uma data, o sistema recalculará retroativamente o saldo que você já deveria ter acumulado até hoje.</p>
+                </div>
+                <!-- FIM NOVO -->
+
+                <div class="input-group" style="margin-top: 15px;">
+                    <label>Salário Bruto Base Fixo (R$)</label>
+                    <input type="number" id="inputSalario" onchange="recalcularBase()" disabled>
+                </div>
+                <div class="input-group">
+                    <label>Rentabilidade Esperada (% ao ano)</label>
+                    <input type="number" id="inputTaxa" value="6" step="0.5" onchange="recalcularBase()">
+                </div>
+                <div class="input-group">
+                    <label>Expectativa de Vida p/ Cálculo (Idade limite)</label>
+                    <input type="number" id="inputExpectativa" value="82" onchange="executarSimulacao()">
+                </div>
+                <button class="btn-action" onclick="executarSimulacao(); toggleCustomSim();">Atualizar Cálculos</button>
+            </div>
+
+            <p style="font-size: 14px; color: var(--text-light); margin-bottom: 10px;">Projetar benefício daqui a:</p>
+            <div class="simulator-controls" id="btn-group-anos"></div>
+
+            <div class="card-info" style="background: var(--dark-blue); color: white;">
+                <h3 style="color: #63C5F1; border-bottom-color: rgba(255,255,255,0.2);">Resultado projetado</h3>
+                <div class="info-row">
+                    <span>Sua Idade na Projeção:</span>
+                    <strong id="ui-proj-idade">37 anos</strong>
+                </div>
+                <div class="info-row">
+                    <span>Saldo Complementar Total:</span>
+                    <strong id="ui-proj-total" style="font-size: 18px;">R$ 0,00</strong>
+                </div>
+                <div class="info-row highlight" style="border-top-color: rgba(255,255,255,0.2); color: #28A745; display:flex; flex-direction:column;">
+                    <div style="display:flex; justify-content:space-between; width:100%;">
+                        <span>Aposentadoria Complementar Estimada:</span>
+                        <strong id="ui-proj-renda" style="font-size: 20px;">R$ 0,00 / mês</strong>
+                    </div>
+                </div>
+                <div class="alerta-idade" id="alerta-idade">
+                    *Atenção: A idade mínima para aposentadoria é de 60 anos (Homem). O valor mensal acima simula o benefício caso o saldo projetado fosse convertido em renda nesta data.
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Navegação Inferior -->
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="openHome()">
+            <span>🏠</span>
+            <br>Início
+        </div>
+        <div class="nav-item">
+            <span>🔔</span>
+            <br>Notificações
+        </div>
+        <div class="nav-item">
+            <span>👤</span>
+            <br>Meus Dados
+        </div>
+    </div>
+
+    <script>
+        // --- DADOS E REGRAS ---
+        const tetoINSS = 8475.55; 
+        
+        const ggov_pe = {
+            food: 334.40,
+            matrix1: [
+              { ref: "R1", bruto: 12029.44 }, { ref: "R1", bruto: 12029.44 }, { ref: "R1", bruto: 12029.44 },
+              { ref: "R2", bruto: 12555.72 }, { ref: "R3", bruto: 13105.68 }, { ref: "R4", bruto: 13616.53 },
+              { ref: "R5", bruto: 14147.81 }, { ref: "R6", bruto: 14769.42 }, { ref: "R7", bruto: 15418.99 },
+              { ref: "R8", bruto: 16022.38 }, { ref: "R9", bruto: 19159.97 }, { ref: "R10", bruto: 19536.48 },
+              { ref: "R11", bruto: 19920.52 }, { ref: "R12", bruto: 20312.25 }, { ref: "R13", bruto: 21311.14 },
+              { ref: "R14", bruto: 21940.44 }, { ref: "R15", bruto: 22588.62 }, { ref: "R16", bruto: 23256.25 }
+            ],
+            matrix2: [
+              { ref: "R1", bruto: 14953.20 }, { ref: "R1", bruto: 14953.20 }, { ref: "R1", bruto: 14953.20 },
+              { ref: "R2", bruto: 15611.05 }, { ref: "R3", bruto: 16298.50 }, { ref: "R4", bruto: 16937.06 },
+              { ref: "R5", bruto: 17601.17 }, { ref: "R6", bruto: 18378.17 }, { ref: "R7", bruto: 19190.14 },
+              { ref: "R8", bruto: 19944.37 }, { ref: "R9", bruto: 23866.36 }, { ref: "R10", bruto: 24337.00 },
+              { ref: "R11", bruto: 24817.05 }, { ref: "R12", bruto: 25306.71 }, { ref: "R13", bruto: 26585.71 },
+              { ref: "R14", bruto: 27372.34 }, { ref: "R15", bruto: 28182.57 }, { ref: "R16", bruto: 29017.10 }
+            ]
+        };
+
+        // Salário inicial padrão
+        const salarioR1M1 = ggov_pe.matrix1[0].bruto - ggov_pe.food; 
+        
+        let servidor = {
+            idadeAtual: 32,
+            mesesContribuicao: 5,
+            salarioSimulado: salarioR1M1,
+            saldoComplementarAtual: 0 
+        };
+
+        let anoSelecionado = 28; 
+
+        const formatBRL = (valor) => {
+            return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        };
+
+        // --- NAVEGAÇÃO SPA ---
+        function openPrevidencia() {
+            document.getElementById('view-home').classList.remove('active');
+            document.getElementById('view-prev').classList.add('active');
+            window.scrollTo(0, 0);
+            recalcularBase();
+        }
+
+        function openHome() {
+            document.getElementById('view-prev').classList.remove('active');
+            document.getElementById('view-home').classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function toggleCustomSim() {
+            const box = document.getElementById('box-custom-sim');
+            box.classList.toggle('active');
+        }
+
+        function toggleHistoricoInput() {
+            const box = document.getElementById('box-data-ingresso');
+            box.style.display = document.getElementById('toggleHistorico').checked ? 'block' : 'none';
+        }
+
+        // --- LÓGICA DE NEGÓCIO ---
+        function recalcularBase() {
+            const usarCarreira = document.getElementById('toggleCarreira').checked;
+            const usarHistorico = document.getElementById('toggleHistorico').checked;
+            const inputSal = document.getElementById('inputSalario');
+            const dataIngressoInput = document.getElementById('inputDataIngresso').value;
+            
+            let taxaAnual = parseFloat(document.getElementById('inputTaxa').value) || 6; 
+            let taxaMensal = Math.pow(1 + (taxaAnual / 100), 1/12) - 1;
+
+            let nivelAtualTexto = "Matriz 1 / R1";
+
+            // 1. Calcular Histórico se Ativo
+            if (usarHistorico && dataIngressoInput) {
+                let dataIngresso = new Date(dataIngressoInput);
+                let hoje = new Date(); // Pode ser substituído por uma data fixa do protótipo se desejar
+                
+                let mesesPassados = (hoje.getFullYear() - dataIngresso.getFullYear()) * 12 + (hoje.getMonth() - dataIngresso.getMonth());
+                if (mesesPassados < 0) mesesPassados = 0;
+                
+                servidor.mesesContribuicao = mesesPassados;
+                
+                let saldoAcumulado = 0;
+                let salarioParaHoje = salarioR1M1;
+
+                // Loop retroativo calculando mês a mês do passado até hoje
+                for (let m = 1; m <= mesesPassados; m++) {
+                    let anosCarreiraPassado = Math.floor((m - 1) / 12);
+                    let maxIndex = 17;
+                    let idx = Math.min(anosCarreiraPassado, maxIndex);
+                    
+                    let refSalario;
+                    if (anosCarreiraPassado < 3) {
+                        refSalario = ggov_pe.matrix1[0]; 
+                        nivelAtualTexto = "Matriz 1 / R1";
+                    } else {
+                        refSalario = ggov_pe.matrix2[idx];
+                        nivelAtualTexto = "Matriz 2 / " + refSalario.ref;
+                    }
+                    
+                    let salarioDoMes = refSalario.bruto - ggov_pe.food;
+                    salarioParaHoje = salarioDoMes; // Atualiza para o último mês calculado
+
+                    saldoAcumulado += (saldoAcumulado * taxaMensal);
+                    let baseComplementarMes = Math.max(0, salarioDoMes - tetoINSS);
+                    let aporteMensal = baseComplementarMes * 0.17; 
+                    saldoAcumulado += aporteMensal;
+                }
+
+                servidor.saldoComplementarAtual = saldoAcumulado;
+                
+                if (usarCarreira) {
+                    servidor.salarioSimulado = salarioParaHoje;
+                    inputSal.value = salarioParaHoje.toFixed(2);
+                    inputSal.disabled = true;
+                }
+
+                // Atualiza UI de tempo
+                let anosContr = Math.floor(mesesPassados/12);
+                let mesesContr = mesesPassados % 12;
+                let textoTempo = anosContr > 0 ? `${anosContr} anos e ${mesesContr} meses` : `${mesesContr} meses`;
+                
+                document.getElementById('ui-badge-tempo').innerHTML = `<strong>Contribuição:</strong> ${textoTempo}`;
+                document.getElementById('home-badge-tempo').innerText = `Idade: ${servidor.idadeAtual} anos | Tempo de Serviço: ${textoTempo}`;
+
+            } else {
+                // 2. Comportamento Padrão (Sem simulação retroativa)
+                servidor.mesesContribuicao = 5;
+                document.getElementById('ui-badge-tempo').innerHTML = `<strong>Contribuição:</strong> 5 meses`;
+                document.getElementById('home-badge-tempo').innerText = `Idade: 32 anos | Tempo de Serviço: 5 meses`;
+                
+                if (usarCarreira) {
+                    servidor.salarioSimulado = salarioR1M1; // Padrão volta ao R1M1
+                    inputSal.value = salarioR1M1.toFixed(2);
+                    inputSal.disabled = true;
+                    nivelAtualTexto = "Matriz 1 / R1";
+                } else {
+                    inputSal.disabled = false;
+                    if (!inputSal.value) inputSal.value = salarioR1M1.toFixed(2);
+                    servidor.salarioSimulado = parseFloat(inputSal.value);
+                    nivelAtualTexto = "Personalizado";
+                }
+
+                // Saldo de 5 meses padronizado (sem juros para simplificar o "estado atual")
+                let aporteBaseAtual = Math.max(0, servidor.salarioSimulado - tetoINSS) * 0.17; 
+                servidor.saldoComplementarAtual = aporteBaseAtual * 5; 
+            }
+
+            // Atualiza UI de Nível
+            document.getElementById('ui-nivel-atual').innerText = nivelAtualTexto;
+
+            // Cálculos do Mês Atual para UI
+            let baseObrigatoria = Math.min(servidor.salarioSimulado, tetoINSS);
+            let descontoObrig = baseObrigatoria * 0.14;
+
+            let baseComplementar = Math.max(0, servidor.salarioSimulado - tetoINSS);
+            let contrServidor = baseComplementar * 0.085;
+            let contrEstado = baseComplementar * 0.085;
+
+            // Renderiza na tela
+            document.getElementById('ui-salario').innerText = formatBRL(servidor.salarioSimulado);
+            document.getElementById('ui-teto').innerText = formatBRL(tetoINSS);
+            document.getElementById('ui-obrig-desc').innerText = "-" + formatBRL(descontoObrig);
+            document.getElementById('ui-saldo-atual').innerText = formatBRL(servidor.saldoComplementarAtual);
+            
+            if(baseComplementar > 0) {
+                document.getElementById('ui-comp-serv').innerText = formatBRL(contrServidor);
+                document.getElementById('ui-comp-est').innerText = formatBRL(contrEstado);
+            } else {
+                document.getElementById('ui-comp-serv').innerText = "R$ 0,00 (Abaixo do teto)";
+                document.getElementById('ui-comp-est').innerText = "R$ 0,00 (Abaixo do teto)";
+            }
+
+            gerarBotoesAnos();
+            executarSimulacao();
+        }
+
+        function gerarBotoesAnos() {
+            const container = document.getElementById('btn-group-anos');
+            container.innerHTML = '';
+            
+            const anosCompulsoria = 75 - servidor.idadeAtual;
+            const anosArray = [5, 10, 20, 28, 35, 40, anosCompulsoria]; 
+            
+            anosArray.forEach(ano => {
+                let btn = document.createElement('button');
+                btn.className = 'btn-sim ' + (ano === anoSelecionado ? 'active' : '');
+                btn.innerText = (ano === anosCompulsoria) ? 'Compulsória' : ano + ' anos';
+                
+                btn.onclick = () => {
+                    anoSelecionado = ano;
+                    gerarBotoesAnos();
+                    executarSimulacao();
+                };
+                container.appendChild(btn);
+            });
+        }
+
+        function executarSimulacao() {
+            const usarCarreira = document.getElementById('toggleCarreira').checked;
+            let taxaAnual = parseFloat(document.getElementById('inputTaxa').value) || 6; 
+            let taxaMensal = Math.pow(1 + (taxaAnual / 100), 1/12) - 1;
+            
+            let expectativaVida = parseInt(document.getElementById('inputExpectativa').value) || 82;
+
+            let mesesSimulacao = anoSelecionado * 12;
+            let saldoFuturo = servidor.saldoComplementarAtual;
+
+            // Motor de progressão mensal projetando o futuro
+            for (let m = 1; m <= mesesSimulacao; m++) {
+                // Soma os meses que a pessoa já tem de estado com os meses futuros
+                let tempoTotalMeses = servidor.mesesContribuicao + m;
+                let anosCarreira = Math.floor(tempoTotalMeses / 12);
+                
+                let salarioDoMes = servidor.salarioSimulado; 
+
+                if (usarCarreira) {
+                    let maxIndex = 17; // R16 é o topo
+                    let idx = Math.min(anosCarreira, maxIndex);
+                    
+                    let refSalario;
+                    if (anosCarreira < 3) {
+                        refSalario = ggov_pe.matrix1[0]; // Trava no M1 R1 por 3 anos
+                    } else {
+                        refSalario = ggov_pe.matrix2[idx]; // Transita para a M2 e progride
+                    }
+                    salarioDoMes = refSalario.bruto - ggov_pe.food;
+                }
+
+                saldoFuturo += (saldoFuturo * taxaMensal);
+
+                let baseComplementarMes = Math.max(0, salarioDoMes - tetoINSS);
+                let aporteMensal = baseComplementarMes * 0.17; 
+                
+                saldoFuturo += aporteMensal;
+            }
+            
+            // Cálculo da Aposentadoria Mensal Estimada
+            let idadeFutura = servidor.idadeAtual + anoSelecionado;
+            let mesesSobrevivencia = (expectativaVida - idadeFutura) * 12;
+            
+            let rendaMensal = 0;
+            if (mesesSobrevivencia > 0) {
+                // Fórmula de anuidade
+                rendaMensal = saldoFuturo * (taxaMensal) / (1 - Math.pow(1 + taxaMensal, -mesesSobrevivencia));
+            } else {
+                rendaMensal = saldoFuturo; 
+            }
+
+            // Renderizando Projeção
+            document.getElementById('ui-proj-idade').innerText = idadeFutura + " anos";
+            document.getElementById('ui-proj-total').innerText = formatBRL(saldoFuturo);
+            document.getElementById('ui-proj-renda').innerText = formatBRL(rendaMensal) + " / mês";
+
+            let alertaIdade = document.getElementById('alerta-idade');
+            if(idadeFutura < 60) {
+                alertaIdade.style.display = 'block';
+            } else {
+                alertaIdade.style.display = 'none';
+            }
+        }
+        
+        // Inicia a aplicação recarregando os dados básicos
+        window.onload = function() {
+            recalcularBase();
+        };
+    </script>
+</body>
+</html>
+
