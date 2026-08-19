@@ -175,11 +175,10 @@ body {
     background: none;
     border: none;
     font-size: 20px;
-    color: var(--dark-blue);
     cursor: pointer;
 }
 
-/* TABS */
+/* TABS PRINCIPAIS */
 .tabs-container {
     display: flex;
     background: var(--card-bg);
@@ -213,6 +212,76 @@ body {
     display: block;
 }
 
+/* SUB TABS (DETALHAMENTO) */
+.sub-tabs {
+    display: flex;
+    border-bottom: 2px solid #eee;
+    margin-bottom: 20px;
+}
+.sub-tab-btn {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    background: transparent;
+    font-weight: bold;
+    color: var(--text-light);
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-size: 12px;
+}
+.sub-tab-btn.active {
+    color: #4CAF50; /* Verde padrão da imagem */
+    border-bottom-color: #4CAF50;
+}
+.sub-tab-content {
+    display: none;
+    animation: fadeIn 0.2s ease-in-out;
+}
+.sub-tab-content.active {
+    display: block;
+}
+
+/* EXTRATO MÊS A MÊS */
+.extrato-mes {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    overflow: hidden;
+}
+.extrato-header {
+    background: #f8fafc;
+    padding: 12px 15px;
+    font-weight: bold;
+    font-size: 13px;
+    color: var(--dark-blue);
+    border-bottom: 1px solid #e2e8f0;
+    text-transform: uppercase;
+}
+.extrato-body {
+    padding: 10px 15px;
+}
+.extrato-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    padding: 8px 0;
+    border-bottom: 1px dashed #eee;
+}
+.extrato-row:last-child {
+    border-bottom: none;
+}
+.extrato-cols {
+    display: flex;
+    gap: 15px;
+    text-align: right;
+}
+.extrato-col {
+    width: 85px;
+}
+
+/* DEMAIS ELEMENTOS */
 .user-badge {
     background: #e0f2fe;
     color: var(--dark-blue);
@@ -369,6 +438,7 @@ body {
     padding: 10px 0;
     border-top-left-radius: 15px;
     border-top-right-radius: 15px;
+    z-index: 99;
 }
 
 .nav-item {
