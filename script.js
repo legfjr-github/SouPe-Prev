@@ -21,17 +21,21 @@ const ggov_pe = {
     ]
 };
 
-// Salário inicial padrão
+// Salário inicial padrão e Variáveis Globais
 const salarioR1M1 = ggov_pe.matrix1[0].bruto - ggov_pe.food; 
 
 let servidor = {
     idadeAtual: 32,
-    mesesContribuicao: 1, // Mudado para 1 mês
+    mesesContribuicao: 1, 
     salarioSimulado: salarioR1M1,
     saldoComplementarAtual: 0 
 };
 
-let anoSelecionado = 30; // Default será atualizado dinamicamente
+let anoSelecionado = 30;
+let detalheGlobal = { anos: {}, totalPessoal: 0, totalPatronal: 0, totalRendimento: 0 };
+
+let chartPizza = null;
+let chartBarras = null;
 
 const formatBRL = (valor) => {
     return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -40,6 +44,7 @@ const formatBRL = (valor) => {
 // --- NAVEGAÇÃO SPA & TABS ---
 function openPrevidencia() {
     document.getElementById('view-home').classList.remove('active');
+    document.getElementById('view-detalhes').classList.remove('active');
     document.getElementById('view-prev').classList.add('active');
     window.scrollTo(0, 0);
     recalcularBase();
@@ -47,8 +52,39 @@ function openPrevidencia() {
 
 function openHome() {
     document.getElementById('view-prev').classList.remove('active');
+    document.getElementById('view-detalhes').classList.remove('active');
     document.getElementById('view-home').classList.add('active');
     window.scrollTo(0, 0);
+}
+
+function abrirDetalhamento() {
+    document.getElementById('view-prev').classList.remove('active');
+    document.getElementById('view-detalhes').classList.add('active');
+    window.scrollTo(0, 0);
+    
+    // Popula o select com os anos gerados na simulação
+    let selectAno = document.getElementById('select-ano-detalhe');
+    selectAno.innerHTML = '';
+    
+    let anosDisponiveis = Object.keys(detalheGlobal.anos).sort((a,b) => a - b);
+    anosDisponiveis.forEach(ano => {
+        let opt = document.createElement('option');
+        opt.value = ano;
+        opt.innerText = "Ano Exercício: " + ano;
+        selectAno.appendChild(opt);
+    });
+
+    // Seleciona o último ano disponível por padrão
+    if(anosDisponiveis.length > 0) {
+        selectAno.value = anosDisponiveis[anosDisponiveis.length - 1];
+    }
+    
+    renderAnoDetalhe();
+}
+
+function fecharDetalhamento() {
+    document.getElementById('view-detalhes').classList.remove('active');
+    document.getElementById('view-prev').classList.add('active');
 }
 
 function switchTab(tabId) {
@@ -59,6 +95,16 @@ function switchTab(tabId) {
     
     document.getElementById('btn-' + tabId).classList.add('active');
     document.getElementById('tab-' + tabId).classList.add('active');
+}
+
+function switchSubTab(tab) {
+    document.getElementById('btn-sub-saldo').classList.remove('active');
+    document.getElementById('btn-sub-cont').classList.remove('active');
+    document.getElementById('sub-tab-saldo').classList.remove('active');
+    document.getElementById('sub-tab-cont').classList.remove('active');
+    
+    document.getElementById('btn-sub-' + tab).classList.add('active');
+    document.getElementById('sub-tab-' + tab).classList.add('active');
 }
 
 function toggleCustomSim() {
@@ -78,49 +124,27 @@ function recalcularBase() {
     const inputSal = document.getElementById('inputSalario');
     const dataIngressoInput = document.getElementById('inputDataIngresso').value;
     
-    let taxaAnual = parseFloat(document.getElementById('inputTaxa').value) || 6; 
-    let taxaMensal = Math.pow(1 + (taxaAnual / 100), 1/12) - 1;
-
     let nivelAtualTexto = "Matriz 1 / R1";
 
-    // 1. Calcular Histórico se Ativo
+    // Define Tempo e Base (Historico vs Padrão)
     if (usarHistorico && dataIngressoInput) {
         let dataIngresso = new Date(dataIngressoInput);
         let hoje = new Date(); 
         
         let mesesPassados = (hoje.getFullYear() - dataIngresso.getFullYear()) * 12 + (hoje.getMonth() - dataIngresso.getMonth());
         if (mesesPassados < 0) mesesPassados = 0;
-        
         servidor.mesesContribuicao = mesesPassados;
         
-        let saldoAcumulado = 0;
         let salarioParaHoje = salarioR1M1;
-
         for (let m = 1; m <= mesesPassados; m++) {
             let anosCarreiraPassado = Math.floor((m - 1) / 12);
-            let maxIndex = 17;
-            let idx = Math.min(anosCarreiraPassado, maxIndex);
+            let idx = Math.min(anosCarreiraPassado, 17);
             
-            let refSalario;
-            if (anosCarreiraPassado < 3) {
-                refSalario = ggov_pe.matrix1[0]; 
-                nivelAtualTexto = "Matriz 1 / R1";
-            } else {
-                refSalario = ggov_pe.matrix2[idx];
-                nivelAtualTexto = "Matriz 2 / " + refSalario.ref;
-            }
-            
-            let salarioDoMes = refSalario.bruto - ggov_pe.food;
-            salarioParaHoje = salarioDoMes;
-
-            saldoAcumulado += (saldoAcumulado * taxaMensal);
-            let baseComplementarMes = Math.max(0, salarioDoMes - tetoINSS);
-            let aporteMensal = baseComplementarMes * 0.17; 
-            saldoAcumulado += aporteMensal;
+            let refSalario = anosCarreiraPassado < 3 ? ggov_pe.matrix1[0] : ggov_pe.matrix2[idx];
+            nivelAtualTexto = anosCarreiraPassado < 3 ? "Matriz 1 / R1" : "Matriz 2 / " + refSalario.ref;
+            salarioParaHoje = refSalario.bruto - ggov_pe.food;
         }
 
-        servidor.saldoComplementarAtual = saldoAcumulado;
-        
         if (usarCarreira) {
             servidor.salarioSimulado = salarioParaHoje;
             inputSal.value = salarioParaHoje.toFixed(2);
@@ -135,8 +159,7 @@ function recalcularBase() {
         document.getElementById('home-badge-tempo').innerText = `Idade: ${servidor.idadeAtual} anos | Tempo de Serviço: ${textoTempo}`;
 
     } else {
-        // 2. Comportamento Padrão
-        servidor.mesesContribuicao = 1; // 1 mês padrão
+        servidor.mesesContribuicao = 1; 
         document.getElementById('ui-badge-tempo').innerHTML = `<strong>Contribuição:</strong> 1 mês`;
         document.getElementById('home-badge-tempo').innerText = `Idade: 32 anos | Tempo de Serviço: 1 mês`;
         
@@ -151,33 +174,11 @@ function recalcularBase() {
             servidor.salarioSimulado = parseFloat(inputSal.value);
             nivelAtualTexto = "Personalizado";
         }
-
-        let aporteBaseAtual = Math.max(0, servidor.salarioSimulado - tetoINSS) * 0.17; 
-        servidor.saldoComplementarAtual = aporteBaseAtual * 1; 
     }
 
     document.getElementById('ui-nivel-atual').innerText = nivelAtualTexto;
 
-    let baseObrigatoria = Math.min(servidor.salarioSimulado, tetoINSS);
-    let descontoObrig = baseObrigatoria * 0.14;
-
-    let baseComplementar = Math.max(0, servidor.salarioSimulado - tetoINSS);
-    let contrServidor = baseComplementar * 0.085;
-    let contrEstado = baseComplementar * 0.085;
-
-    document.getElementById('ui-salario').innerText = formatBRL(servidor.salarioSimulado);
-    document.getElementById('ui-teto').innerText = formatBRL(tetoINSS);
-    document.getElementById('ui-obrig-desc').innerText = "-" + formatBRL(descontoObrig);
-    document.getElementById('ui-saldo-atual').innerText = formatBRL(servidor.saldoComplementarAtual);
-    
-    if(baseComplementar > 0) {
-        document.getElementById('ui-comp-serv').innerText = formatBRL(contrServidor);
-        document.getElementById('ui-comp-est').innerText = formatBRL(contrEstado);
-    } else {
-        document.getElementById('ui-comp-serv').innerText = "R$ 0,00 (Abaixo do teto)";
-        document.getElementById('ui-comp-est').innerText = "R$ 0,00 (Abaixo do teto)";
-    }
-
+    // Call Execução que vai rodar o ciclo desde o dia 0 e atualizar valores
     gerarBotoesAnos();
     executarSimulacao();
 }
@@ -189,37 +190,26 @@ function gerarBotoesAnos() {
     let genero = document.getElementById('inputGenero') ? document.getElementById('inputGenero').value : 'F';
     let anosContribuicaoAtual = servidor.mesesContribuicao / 12;
     
-    // Regras Legais
     let idadeMinIntegral = genero === 'M' ? 60 : 55;
     let tempoContribMinIntegral = genero === 'M' ? 35 : 30;
     let idadeMinProporcional = genero === 'M' ? 65 : 60;
     
-    // Cálculo do GAP para Integral
     let anosParaIdadeIntegral = Math.max(0, idadeMinIntegral - servidor.idadeAtual);
     let anosParaContribIntegral = Math.max(0, tempoContribMinIntegral - anosContribuicaoAtual);
     let anosFaltantesIntegral = Math.ceil(Math.max(anosParaIdadeIntegral, anosParaContribIntegral));
     
-    // Cálculo do GAP para Proporcional por Idade
     let anosFaltantesProporcional = Math.ceil(Math.max(0, idadeMinProporcional - servidor.idadeAtual));
-    
     const anosCompulsoria = 75 - servidor.idadeAtual;
     
     let btnLabels = {};
+    [5, 10, 15, 20].forEach(a => { if(a > 0 && a < anosCompulsoria) btnLabels[a] = a + ' anos'; });
     
-    // Botões genéricos
-    [5, 10, 15, 20].forEach(a => { 
-        if(a > 0 && a < anosCompulsoria) btnLabels[a] = a + ' anos'; 
-    });
-    
-    // Botões precisão legal
     if (anosFaltantesIntegral > 0 && anosFaltantesIntegral < anosCompulsoria) {
         btnLabels[anosFaltantesIntegral] = anosFaltantesIntegral + ' anos (Integral)';
     }
     if (anosFaltantesProporcional > 0 && anosFaltantesProporcional < anosCompulsoria) {
         if (btnLabels[anosFaltantesProporcional]) {
-            if (anosFaltantesProporcional !== anosFaltantesIntegral) {
-                 btnLabels[anosFaltantesProporcional] += ' / Prop. Idade';
-            }
+            if (anosFaltantesProporcional !== anosFaltantesIntegral) btnLabels[anosFaltantesProporcional] += ' / Prop. Idade';
         } else {
             btnLabels[anosFaltantesProporcional] = anosFaltantesProporcional + ' anos (Prop. Idade)';
         }
@@ -228,7 +218,6 @@ function gerarBotoesAnos() {
     
     let sortedAnos = Object.keys(btnLabels).map(Number).sort((a,b) => a - b);
     
-    // Auto-selecionar o ideal
     if (!sortedAnos.includes(anoSelecionado) && anoSelecionado !== anosCompulsoria) {
         anoSelecionado = anosFaltantesIntegral > 0 ? anosFaltantesIntegral : anosCompulsoria;
     }
@@ -249,95 +238,252 @@ function gerarBotoesAnos() {
 
 function executarSimulacao() {
     const usarCarreira = document.getElementById('toggleCarreira').checked;
+    const usarHistorico = document.getElementById('toggleHistorico').checked;
     let taxaAnual = parseFloat(document.getElementById('inputTaxa').value) || 6; 
     let taxaMensal = Math.pow(1 + (taxaAnual / 100), 1/12) - 1;
-    
     let expectativaVida = parseInt(document.getElementById('inputExpectativa').value) || 82;
 
-    let mesesSimulacao = anoSelecionado * 12;
-    let saldoFuturo = servidor.saldoComplementarAtual;
+    // Reset Detalhamento Global
+    detalheGlobal = { anos: {}, totalPessoal: 0, totalPatronal: 0, totalRendimento: 0 };
+    let saldoSimulacao = 0;
+    
+    // Controladores de Data (Começa do passado ou de hoje)
+    let dataReferencia = new Date();
+    if (usarHistorico && document.getElementById('inputDataIngresso').value) {
+        dataReferencia = new Date(document.getElementById('inputDataIngresso').value);
+    }
+    
+    let mesesPassados = servidor.mesesContribuicao;
+    let mesesFuturos = anoSelecionado * 12;
+    let totalMesesSimular = mesesPassados + mesesFuturos;
 
-    for (let m = 1; m <= mesesSimulacao; m++) {
-        let tempoTotalMeses = servidor.mesesContribuicao + m;
-        let anosCarreira = Math.floor(tempoTotalMeses / 12);
-        
+    let saldoAtualCongelado = 0; // Guardará o saldo do mês "Atual" para a UI de resumo
+
+    // Laço único Unificado (Passado + Futuro)
+    for (let m = 1; m <= totalMesesSimular; m++) {
+        let anosCarreira = Math.floor((m - 1) / 12);
         let salarioDoMes = servidor.salarioSimulado; 
 
         if (usarCarreira) {
-            let maxIndex = 17; 
-            let idx = Math.min(anosCarreira, maxIndex);
-            
-            let refSalario;
-            if (anosCarreira < 3) {
-                refSalario = ggov_pe.matrix1[0]; 
-            } else {
-                refSalario = ggov_pe.matrix2[idx]; 
-            }
+            let idx = Math.min(anosCarreira, 17);
+            let refSalario = anosCarreira < 3 ? ggov_pe.matrix1[0] : ggov_pe.matrix2[idx];
             salarioDoMes = refSalario.bruto - ggov_pe.food;
         }
 
-        saldoFuturo += (saldoFuturo * taxaMensal);
+        // Rendimentos e Aportes
+        let rendimentoMes = saldoSimulacao * taxaMensal;
+        saldoSimulacao += rendimentoMes;
 
         let baseComplementarMes = Math.max(0, salarioDoMes - tetoINSS);
-        let aporteMensal = baseComplementarMes * 0.17; 
+        let aportePessoal = baseComplementarMes * 0.085;
+        let aportePatronal = baseComplementarMes * 0.085;
         
-        saldoFuturo += aporteMensal;
+        saldoSimulacao += (aportePessoal + aportePatronal);
+
+        // Alimentar Detalhamento Anual
+        let anoStr = dataReferencia.getFullYear().toString();
+        let nomeMes = dataReferencia.toLocaleString('pt-BR', { month: 'long' });
+        
+        if(!detalheGlobal.anos[anoStr]) {
+            detalheGlobal.anos[anoStr] = { meses: [], totalPessoal: 0, totalPatronal: 0, totalRendimento: 0 };
+        }
+        
+        detalheGlobal.anos[anoStr].meses.push({
+            mes: nomeMes,
+            pessoal: aportePessoal,
+            patronal: aportePatronal,
+            rendimento: rendimentoMes
+        });
+        
+        detalheGlobal.anos[anoStr].totalPessoal += aportePessoal;
+        detalheGlobal.anos[anoStr].totalPatronal += aportePatronal;
+        detalheGlobal.anos[anoStr].totalRendimento += rendimentoMes;
+        
+        detalheGlobal.totalPessoal += aportePessoal;
+        detalheGlobal.totalPatronal += aportePatronal;
+        detalheGlobal.totalRendimento += rendimentoMes;
+
+        // Se o loop chegou exatamente ao "Hoje", guardamos a foto do momento
+        if (m === mesesPassados) {
+            saldoAtualCongelado = saldoSimulacao;
+            
+            // Atualiza quadro do Mês Atual
+            let descontoObrig = Math.min(salarioDoMes, tetoINSS) * 0.14;
+            document.getElementById('ui-salario').innerText = formatBRL(salarioDoMes);
+            document.getElementById('ui-teto').innerText = formatBRL(tetoINSS);
+            document.getElementById('ui-obrig-desc').innerText = "-" + formatBRL(descontoObrig);
+            document.getElementById('ui-saldo-atual').innerText = formatBRL(saldoAtualCongelado);
+            document.getElementById('ui-comp-serv').innerText = formatBRL(aportePessoal);
+            document.getElementById('ui-comp-est').innerText = formatBRL(aportePatronal);
+        }
+
+        dataReferencia.setMonth(dataReferencia.getMonth() + 1);
     }
     
+    // Cálculo Renda Estimada e Validações Legais
     let idadeFutura = servidor.idadeAtual + anoSelecionado;
     let mesesSobrevivencia = (expectativaVida - idadeFutura) * 12;
     
     let rendaMensal = 0;
     if (mesesSobrevivencia > 0) {
-        rendaMensal = saldoFuturo * (taxaMensal) / (1 - Math.pow(1 + taxaMensal, -mesesSobrevivencia));
+        rendaMensal = saldoSimulacao * (taxaMensal) / (1 - Math.pow(1 + taxaMensal, -mesesSobrevivencia));
     } else {
-        rendaMensal = saldoFuturo; 
+        rendaMensal = saldoSimulacao; 
     }
 
-    // Precisão Legal - Avaliação
     let genero = document.getElementById('inputGenero').value;
     let generoTexto = genero === 'M' ? 'Homem' : 'Mulher';
     let idadeMinIntegral = genero === 'M' ? 60 : 55;
     let tempoContribMinIntegral = genero === 'M' ? 35 : 30;
     let idadeMinProporcional = genero === 'M' ? 65 : 60;
     
-    let tempoTotalContribuicaoProjetado = (servidor.mesesContribuicao + mesesSimulacao) / 12;
+    let tempoTotalContribuicaoProjetado = totalMesesSimular / 12;
     
     let isIntegral = (idadeFutura >= idadeMinIntegral) && (tempoTotalContribuicaoProjetado >= tempoContribMinIntegral);
     let isProporcional = (idadeFutura >= idadeMinProporcional);
     let isCompulsoria = (idadeFutura >= 75);
 
+    // Calcular Previdência Obrigatória Estimada
+    let prevObrigEstimada = 0;
+    if (isIntegral || isProporcional || isCompulsoria) {
+        let fatorTempo = Math.min(1, tempoTotalContribuicaoProjetado / tempoContribMinIntegral);
+        prevObrigEstimada = tetoINSS * fatorTempo; // Proporcionalidade Limitada ao Teto
+    }
+
     // Renderizando Projeção
     document.getElementById('ui-proj-idade').innerText = idadeFutura + " anos";
     document.getElementById('ui-proj-tempo-cont').innerText = tempoTotalContribuicaoProjetado.toFixed(1) + " anos";
-    document.getElementById('ui-proj-total').innerText = formatBRL(saldoFuturo);
+    document.getElementById('ui-proj-total').innerText = formatBRL(saldoSimulacao);
     document.getElementById('ui-proj-renda').innerText = formatBRL(rendaMensal) + " / mês";
+    document.getElementById('ui-proj-obrig').innerText = formatBRL(prevObrigEstimada) + " / mês";
 
     let alertaIdade = document.getElementById('alerta-idade');
     if (isCompulsoria) {
-         alertaIdade.innerHTML = `<strong>Aposentadoria Compulsória</strong> aos 75 anos. Proventos são proporcionais ao tempo de contribuição. O valor mensal acima simula a renda do seu saldo complementar nesta data.`;
+         alertaIdade.innerHTML = `<strong>Aposentadoria Compulsória</strong> aos 75 anos. O valor mensal simula a renda do seu saldo complementar nesta data.`;
          alertaIdade.style.display = 'block';
          alertaIdade.style.color = '#a5d8ff';
          alertaIdade.style.borderLeft = '4px solid #a5d8ff';
     } else if (isIntegral) {
-         alertaIdade.innerHTML = `✅ <strong>Requisitos de Integralidade Atingidos!</strong> Você terá ${idadeFutura} anos de idade e atingirá o tempo mínimo exigido de contribuição.`;
+         alertaIdade.innerHTML = `✅ <strong>Requisitos de Integralidade Atingidos!</strong> Você terá ${idadeFutura} anos de idade e baterá o tempo mínimo de contribuição.`;
          alertaIdade.style.display = 'block';
          alertaIdade.style.color = '#28A745'; 
          alertaIdade.style.borderLeft = '4px solid #28A745';
     } else if (isProporcional) {
-         alertaIdade.innerHTML = `⚠️ <strong>Atenção:</strong> Nesta data, você cumpre apenas a idade para aposentadoria <strong>proporcional</strong> (${idadeMinProporcional} anos). Faltará tempo de contribuição para a integral (Exige: ${tempoContribMinIntegral} anos / Projetado: ${tempoTotalContribuicaoProjetado.toFixed(1)} anos).`;
+         alertaIdade.innerHTML = `⚠️ <strong>Atenção:</strong> Você cumpre apenas a idade para aposentadoria <strong>proporcional</strong> (${idadeMinProporcional} anos). Faltará tempo de contribuição para a integral. (Obrigatória reduzida).`;
          alertaIdade.style.display = 'block';
          alertaIdade.style.color = '#ffdd57';
          alertaIdade.style.borderLeft = '4px solid #ffdd57';
     } else {
-         alertaIdade.innerHTML = `⛔ <strong>Atenção: Requisitos Não Atingidos.</strong><br>Aposentadoria Integral (${generoTexto}): ${idadeMinIntegral} anos de idade + ${tempoContribMinIntegral} anos de contribuição.<br>Aposentadoria Proporcional: ${idadeMinProporcional} anos de idade.`;
+         alertaIdade.innerHTML = `⛔ <strong>Atenção: Requisitos Não Atingidos.</strong><br>Você não tem idade/tempo para receber benefícios oficiais nesta data.`;
          alertaIdade.style.display = 'block';
          alertaIdade.style.color = '#ff9999';
          alertaIdade.style.borderLeft = '4px solid #ff9999';
     }
 }
 
-// Inicia a aplicação recarregando os dados básicos
+// Renderiza a Tela Detalhada para o Ano Selecionado
+function renderAnoDetalhe() {
+    let ano = document.getElementById('select-ano-detalhe').value;
+    let dadosAno = detalheGlobal.anos[ano];
+    
+    if(!dadosAno) return;
+    
+    // Atualiza Resumo Superior do Detalhamento
+    document.getElementById('det-saldo-ano').innerText = formatBRL(dadosAno.totalPessoal + dadosAno.totalPatronal + dadosAno.totalRendimento);
+    document.getElementById('det-pessoal-ano').innerText = formatBRL(dadosAno.totalPessoal);
+    document.getElementById('det-patronal-ano').innerText = formatBRL(dadosAno.totalPatronal);
+    document.getElementById('det-rendimento-ano').innerText = formatBRL(dadosAno.totalRendimento);
+
+    // Renderiza Extrato Mensal (Aba Contribuições)
+    let listaContainer = document.getElementById('lista-meses-container');
+    listaContainer.innerHTML = '';
+    
+    [...dadosAno.meses].reverse().forEach(mesData => {
+        let totalMesPes = mesData.pessoal;
+        let totalMesPat = mesData.patronal;
+        
+        let html = `
+        <div class="extrato-mes">
+            <div class="extrato-header">${mesData.mes} ${ano}</div>
+            <div class="extrato-body">
+                <div class="extrato-row" style="font-weight: bold; border-bottom: 2px solid #eee; padding-bottom: 8px;">
+                    <span style="flex:1;"></span>
+                    <div class="extrato-cols">
+                        <span class="extrato-col" style="color:var(--text-light);">PESSOAL</span>
+                        <span class="extrato-col" style="color:var(--text-light);">PATRONAL</span>
+                    </div>
+                </div>
+                <div class="extrato-row">
+                    <span style="flex:1;">Aporte Complementar</span>
+                    <div class="extrato-cols">
+                        <span class="extrato-col">${formatBRL(mesData.pessoal)}</span>
+                        <span class="extrato-col">${formatBRL(mesData.patronal)}</span>
+                    </div>
+                </div>
+                <div class="extrato-row" style="background: #f0f9ff; margin-top: 5px; padding: 10px 5px; border-radius: 4px;">
+                    <span style="flex:1; color: var(--dark-blue);">TOTAL DO MÊS</span>
+                    <div class="extrato-cols">
+                        <span class="extrato-col" style="color: var(--dark-blue);">${formatBRL(totalMesPes)}</span>
+                        <span class="extrato-col" style="color: var(--dark-blue);">${formatBRL(totalMesPat)}</span>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+        listaContainer.innerHTML += html;
+    });
+
+    // Renderiza Gráficos (Aba Saldo de Conta)
+    if(chartPizza) chartPizza.destroy();
+    if(chartBarras) chartBarras.destroy();
+
+    const ctxPizza = document.getElementById('chartPizzaAcumulado').getContext('2d');
+    chartPizza = new Chart(ctxPizza, {
+        type: 'pie',
+        data: {
+            labels: ['Pessoal (Total)', 'Patronal (Total)', 'Rendimentos (Total)'],
+            datasets: [{
+                data: [detalheGlobal.totalPessoal, detalheGlobal.totalPatronal, detalheGlobal.totalRendimento],
+                backgroundColor: ['#63C5F1', '#1A365D', '#28A745'],
+                borderWidth: 0
+            }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom'} } }
+    });
+
+    const ctxBarras = document.getElementById('chartBarrasAno').getContext('2d');
+    let labelsMeses = dadosAno.meses.map(m => m.mes.substring(0,3).toUpperCase());
+    let dataAportes = dadosAno.meses.map(m => m.pessoal + m.patronal);
+    let dataRendimentos = dadosAno.meses.map(m => m.rendimento);
+
+    chartBarras = new Chart(ctxBarras, {
+        type: 'bar',
+        data: {
+            labels: labelsMeses,
+            datasets: [
+                {
+                    label: 'Aportes (Pes+Pat)',
+                    data: dataAportes,
+                    backgroundColor: '#1A365D'
+                },
+                {
+                    label: 'Rendimentos no Mês',
+                    data: dataRendimentos,
+                    backgroundColor: '#28A745'
+                }
+            ]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom' } },
+            scales: {
+                x: { stacked: true },
+                y: { stacked: true }
+            }
+        }
+    });
+}
+
+// Inicia
 window.onload = function() {
     recalcularBase();
 };
