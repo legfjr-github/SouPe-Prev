@@ -282,6 +282,7 @@
             font-weight: bold;
             cursor: pointer;
             text-align: center;
+            font-size: 13px;
         }
         .btn-sim.active {
             background: var(--dark-blue);
@@ -310,12 +311,13 @@
             color: var(--text-light);
             margin-bottom: 5px;
         }
-        .input-group input[type="number"], .input-group input[type="date"] {
+        .input-group input[type="number"], .input-group input[type="date"], .input-group select {
             width: 100%;
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 6px;
             font-size: 14px;
+            background: white;
         }
         .input-group input:disabled {
             background-color: #e9ecef;
@@ -394,12 +396,13 @@
         }
 
         .alerta-idade {
-            font-size: 11px;
+            font-size: 12px;
             background: rgba(255,255,255,0.1);
-            padding: 8px;
+            padding: 10px;
             border-radius: 6px;
-            margin-top: 10px;
+            margin-top: 15px;
             color: #a5d8ff;
+            line-height: 1.4;
         }
 
         /* Links de Transparência */
@@ -429,13 +432,13 @@
                 <button class="btn-sair">Sair ➔</button>
             </div>
             <div class="user-greeting">Olá, Débora</div>
-            <p style="font-size: 13px; margin-bottom: 15px;" id="home-badge-tempo">Idade: 32 anos | Tempo de Serviço: 5 meses</p>
+            <p style="font-size: 13px; margin-bottom: 15px;" id="home-badge-tempo">Idade: 32 anos | Tempo de Serviço: 1 mês</p>
             <div class="vinculo-card-container">
                 <div class="vinculo-card">
                     <h3>MEU VÍNCULO ATIVO</h3>
                     <p><strong>Sec. De Administracao</strong></p>
                     <p style="font-size: 14px; margin-top:5px;">Cargo: Ggov - Administrativa</p>
-                    <p style="font-size: 14px;">Matrícula: 1234567-01</p>
+                    <p style="font-size: 14px;">Matrícula: 3473643-02</p>
                 </div>
                 <div class="cracha-card">
                     <div style="font-size: 24px; color: var(--primary-blue);">🪪</div>
@@ -488,7 +491,7 @@
         <div id="tab-simulacao" class="tab-content active">
             <div class="user-badge">
                 <span><strong>Idade:</strong> 32 anos</span>
-                <span id="ui-badge-tempo"><strong>Contribuição:</strong> 5 meses</span>
+                <span id="ui-badge-tempo"><strong>Contribuição:</strong> 1 mês</span>
             </div>
 
             <div class="card-info">
@@ -551,6 +554,14 @@
                 </div>
 
                 <div class="input-group" style="margin-top: 15px;">
+                    <label>Gênero (Regras de Aposentadoria)</label>
+                    <select id="inputGenero" onchange="gerarBotoesAnos(); executarSimulacao();">
+                        <option value="F" selected>Mulher (Id. Mín. 55 anos / Contrib. Mín. 30 anos)</option>
+                        <option value="M">Homem (Id. Mín. 60 anos / Contrib. Mín. 35 anos)</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
                     <label>Salário Bruto Base Fixo (R$)</label>
                     <input type="number" id="inputSalario" onchange="recalcularBase()" disabled>
                 </div>
@@ -575,6 +586,10 @@
                     <strong id="ui-proj-idade">37 anos</strong>
                 </div>
                 <div class="info-row">
+                    <span>Tempo Contribuição Projetado:</span>
+                    <strong id="ui-proj-tempo-cont">1 anos</strong>
+                </div>
+                <div class="info-row">
                     <span>Saldo Complementar Total:</span>
                     <strong id="ui-proj-total" style="font-size: 18px;">R$ 0,00</strong>
                 </div>
@@ -585,7 +600,7 @@
                     </div>
                 </div>
                 <div class="alerta-idade" id="alerta-idade">
-                    *Atenção: A idade mínima para aposentadoria é de 60 anos (Homem). O valor mensal acima simula o benefício caso o saldo projetado fosse convertido em renda nesta data.
+                    <!-- Gerado via JS -->
                 </div>
             </div>
         </div>
@@ -697,12 +712,12 @@
         
         let servidor = {
             idadeAtual: 32,
-            mesesContribuicao: 5,
+            mesesContribuicao: 1, // Mudado para 1 mês
             salarioSimulado: salarioR1M1,
             saldoComplementarAtual: 0 
         };
 
-        let anoSelecionado = 28; 
+        let anoSelecionado = 30; // Default será atualizado dinamicamente
 
         const formatBRL = (valor) => {
             return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -723,14 +738,11 @@
         }
 
         function switchTab(tabId) {
-            // Reset buttons
             document.getElementById('btn-simulacao').classList.remove('active');
             document.getElementById('btn-transparencia').classList.remove('active');
-            // Reset contents
             document.getElementById('tab-simulacao').classList.remove('active');
             document.getElementById('tab-transparencia').classList.remove('active');
             
-            // Set active
             document.getElementById('btn-' + tabId).classList.add('active');
             document.getElementById('tab-' + tabId).classList.add('active');
         }
@@ -770,7 +782,6 @@
                 let saldoAcumulado = 0;
                 let salarioParaHoje = salarioR1M1;
 
-                // Loop retroativo calculando mês a mês do passado até hoje
                 for (let m = 1; m <= mesesPassados; m++) {
                     let anosCarreiraPassado = Math.floor((m - 1) / 12);
                     let maxIndex = 17;
@@ -786,7 +797,7 @@
                     }
                     
                     let salarioDoMes = refSalario.bruto - ggov_pe.food;
-                    salarioParaHoje = salarioDoMes; // Atualiza para o último mês calculado
+                    salarioParaHoje = salarioDoMes;
 
                     saldoAcumulado += (saldoAcumulado * taxaMensal);
                     let baseComplementarMes = Math.max(0, salarioDoMes - tetoINSS);
@@ -802,7 +813,6 @@
                     inputSal.disabled = true;
                 }
 
-                // Atualiza UI de tempo
                 let anosContr = Math.floor(mesesPassados/12);
                 let mesesContr = mesesPassados % 12;
                 let textoTempo = anosContr > 0 ? `${anosContr} anos e ${mesesContr} meses` : `${mesesContr} meses`;
@@ -811,13 +821,13 @@
                 document.getElementById('home-badge-tempo').innerText = `Idade: ${servidor.idadeAtual} anos | Tempo de Serviço: ${textoTempo}`;
 
             } else {
-                // 2. Comportamento Padrão (Sem simulação retroativa)
-                servidor.mesesContribuicao = 5;
-                document.getElementById('ui-badge-tempo').innerHTML = `<strong>Contribuição:</strong> 5 meses`;
-                document.getElementById('home-badge-tempo').innerText = `Idade: 32 anos | Tempo de Serviço: 5 meses`;
+                // 2. Comportamento Padrão
+                servidor.mesesContribuicao = 1; // 1 mês padrão
+                document.getElementById('ui-badge-tempo').innerHTML = `<strong>Contribuição:</strong> 1 mês`;
+                document.getElementById('home-badge-tempo').innerText = `Idade: 32 anos | Tempo de Serviço: 1 mês`;
                 
                 if (usarCarreira) {
-                    servidor.salarioSimulado = salarioR1M1; // Padrão volta ao R1M1
+                    servidor.salarioSimulado = salarioR1M1; 
                     inputSal.value = salarioR1M1.toFixed(2);
                     inputSal.disabled = true;
                     nivelAtualTexto = "Matriz 1 / R1";
@@ -828,15 +838,12 @@
                     nivelAtualTexto = "Personalizado";
                 }
 
-                // Saldo de 5 meses padronizado (sem juros para simplificar o "estado atual")
                 let aporteBaseAtual = Math.max(0, servidor.salarioSimulado - tetoINSS) * 0.17; 
-                servidor.saldoComplementarAtual = aporteBaseAtual * 5; 
+                servidor.saldoComplementarAtual = aporteBaseAtual * 1; 
             }
 
-            // Atualiza UI de Nível
             document.getElementById('ui-nivel-atual').innerText = nivelAtualTexto;
 
-            // Cálculos do Mês Atual para UI
             let baseObrigatoria = Math.min(servidor.salarioSimulado, tetoINSS);
             let descontoObrig = baseObrigatoria * 0.14;
 
@@ -844,7 +851,6 @@
             let contrServidor = baseComplementar * 0.085;
             let contrEstado = baseComplementar * 0.085;
 
-            // Renderiza na tela
             document.getElementById('ui-salario').innerText = formatBRL(servidor.salarioSimulado);
             document.getElementById('ui-teto').innerText = formatBRL(tetoINSS);
             document.getElementById('ui-obrig-desc').innerText = "-" + formatBRL(descontoObrig);
@@ -866,13 +872,57 @@
             const container = document.getElementById('btn-group-anos');
             container.innerHTML = '';
             
-            const anosCompulsoria = 75 - servidor.idadeAtual;
-            const anosArray = [5, 10, 20, 28, 35, 40, anosCompulsoria]; 
+            let genero = document.getElementById('inputGenero') ? document.getElementById('inputGenero').value : 'F';
+            let anosContribuicaoAtual = servidor.mesesContribuicao / 12;
             
-            anosArray.forEach(ano => {
+            // Regras Legais
+            let idadeMinIntegral = genero === 'M' ? 60 : 55;
+            let tempoContribMinIntegral = genero === 'M' ? 35 : 30;
+            let idadeMinProporcional = genero === 'M' ? 65 : 60;
+            
+            // Cálculo do GAP para Integral
+            let anosParaIdadeIntegral = Math.max(0, idadeMinIntegral - servidor.idadeAtual);
+            let anosParaContribIntegral = Math.max(0, tempoContribMinIntegral - anosContribuicaoAtual);
+            let anosFaltantesIntegral = Math.ceil(Math.max(anosParaIdadeIntegral, anosParaContribIntegral));
+            
+            // Cálculo do GAP para Proporcional por Idade
+            let anosFaltantesProporcional = Math.ceil(Math.max(0, idadeMinProporcional - servidor.idadeAtual));
+            
+            const anosCompulsoria = 75 - servidor.idadeAtual;
+            
+            let btnLabels = {};
+            
+            // Botões genéricos
+            [5, 10, 15, 20].forEach(a => { 
+                if(a > 0 && a < anosCompulsoria) btnLabels[a] = a + ' anos'; 
+            });
+            
+            // Botões precisão legal
+            if (anosFaltantesIntegral > 0 && anosFaltantesIntegral < anosCompulsoria) {
+                btnLabels[anosFaltantesIntegral] = anosFaltantesIntegral + ' anos (Integral)';
+            }
+            if (anosFaltantesProporcional > 0 && anosFaltantesProporcional < anosCompulsoria) {
+                if (btnLabels[anosFaltantesProporcional]) {
+                    if (anosFaltantesProporcional !== anosFaltantesIntegral) {
+                         btnLabels[anosFaltantesProporcional] += ' / Prop. Idade';
+                    }
+                } else {
+                    btnLabels[anosFaltantesProporcional] = anosFaltantesProporcional + ' anos (Prop. Idade)';
+                }
+            }
+            btnLabels[anosCompulsoria] = 'Compulsória (' + anosCompulsoria + ' anos)';
+            
+            let sortedAnos = Object.keys(btnLabels).map(Number).sort((a,b) => a - b);
+            
+            // Auto-selecionar o ideal
+            if (!sortedAnos.includes(anoSelecionado) && anoSelecionado !== anosCompulsoria) {
+                anoSelecionado = anosFaltantesIntegral > 0 ? anosFaltantesIntegral : anosCompulsoria;
+            }
+
+            sortedAnos.forEach(ano => {
                 let btn = document.createElement('button');
                 btn.className = 'btn-sim ' + (ano === anoSelecionado ? 'active' : '');
-                btn.innerText = (ano === anosCompulsoria) ? 'Compulsória' : ano + ' anos';
+                btn.innerText = btnLabels[ano];
                 
                 btn.onclick = () => {
                     anoSelecionado = ano;
@@ -893,23 +943,21 @@
             let mesesSimulacao = anoSelecionado * 12;
             let saldoFuturo = servidor.saldoComplementarAtual;
 
-            // Motor de progressão mensal projetando o futuro
             for (let m = 1; m <= mesesSimulacao; m++) {
-                // Soma os meses que a pessoa já tem de estado com os meses futuros
                 let tempoTotalMeses = servidor.mesesContribuicao + m;
                 let anosCarreira = Math.floor(tempoTotalMeses / 12);
                 
                 let salarioDoMes = servidor.salarioSimulado; 
 
                 if (usarCarreira) {
-                    let maxIndex = 17; // R16 é o topo
+                    let maxIndex = 17; 
                     let idx = Math.min(anosCarreira, maxIndex);
                     
                     let refSalario;
                     if (anosCarreira < 3) {
-                        refSalario = ggov_pe.matrix1[0]; // Trava no M1 R1 por 3 anos
+                        refSalario = ggov_pe.matrix1[0]; 
                     } else {
-                        refSalario = ggov_pe.matrix2[idx]; // Transita para a M2 e progride
+                        refSalario = ggov_pe.matrix2[idx]; 
                     }
                     salarioDoMes = refSalario.bruto - ggov_pe.food;
                 }
@@ -922,28 +970,56 @@
                 saldoFuturo += aporteMensal;
             }
             
-            // Cálculo da Aposentadoria Mensal Estimada
             let idadeFutura = servidor.idadeAtual + anoSelecionado;
             let mesesSobrevivencia = (expectativaVida - idadeFutura) * 12;
             
             let rendaMensal = 0;
             if (mesesSobrevivencia > 0) {
-                // Fórmula de anuidade
                 rendaMensal = saldoFuturo * (taxaMensal) / (1 - Math.pow(1 + taxaMensal, -mesesSobrevivencia));
             } else {
                 rendaMensal = saldoFuturo; 
             }
 
+            // Precisão Legal - Avaliação
+            let genero = document.getElementById('inputGenero').value;
+            let generoTexto = genero === 'M' ? 'Homem' : 'Mulher';
+            let idadeMinIntegral = genero === 'M' ? 60 : 55;
+            let tempoContribMinIntegral = genero === 'M' ? 35 : 30;
+            let idadeMinProporcional = genero === 'M' ? 65 : 60;
+            
+            let tempoTotalContribuicaoProjetado = (servidor.mesesContribuicao + mesesSimulacao) / 12;
+            
+            let isIntegral = (idadeFutura >= idadeMinIntegral) && (tempoTotalContribuicaoProjetado >= tempoContribMinIntegral);
+            let isProporcional = (idadeFutura >= idadeMinProporcional);
+            let isCompulsoria = (idadeFutura >= 75);
+
             // Renderizando Projeção
             document.getElementById('ui-proj-idade').innerText = idadeFutura + " anos";
+            document.getElementById('ui-proj-tempo-cont').innerText = tempoTotalContribuicaoProjetado.toFixed(1) + " anos";
             document.getElementById('ui-proj-total').innerText = formatBRL(saldoFuturo);
             document.getElementById('ui-proj-renda').innerText = formatBRL(rendaMensal) + " / mês";
 
             let alertaIdade = document.getElementById('alerta-idade');
-            if(idadeFutura < 60) {
-                alertaIdade.style.display = 'block';
+            if (isCompulsoria) {
+                 alertaIdade.innerHTML = `<strong>Aposentadoria Compulsória</strong> aos 75 anos. Proventos são proporcionais ao tempo de contribuição. O valor mensal acima simula a renda do seu saldo complementar nesta data.`;
+                 alertaIdade.style.display = 'block';
+                 alertaIdade.style.color = '#a5d8ff';
+                 alertaIdade.style.borderLeft = '4px solid #a5d8ff';
+            } else if (isIntegral) {
+                 alertaIdade.innerHTML = `✅ <strong>Requisitos de Integralidade Atingidos!</strong> Você terá ${idadeFutura} anos de idade e atingirá o tempo mínimo exigido de contribuição.`;
+                 alertaIdade.style.display = 'block';
+                 alertaIdade.style.color = '#28A745'; 
+                 alertaIdade.style.borderLeft = '4px solid #28A745';
+            } else if (isProporcional) {
+                 alertaIdade.innerHTML = `⚠️ <strong>Atenção:</strong> Nesta data, você cumpre apenas a idade para aposentadoria <strong>proporcional</strong> (${idadeMinProporcional} anos). Faltará tempo de contribuição para a integral (Exige: ${tempoContribMinIntegral} anos / Projetado: ${tempoTotalContribuicaoProjetado.toFixed(1)} anos).`;
+                 alertaIdade.style.display = 'block';
+                 alertaIdade.style.color = '#ffdd57';
+                 alertaIdade.style.borderLeft = '4px solid #ffdd57';
             } else {
-                alertaIdade.style.display = 'none';
+                 alertaIdade.innerHTML = `⛔ <strong>Atenção: Requisitos Não Atingidos.</strong><br>Aposentadoria Integral (${generoTexto}): ${idadeMinIntegral} anos de idade + ${tempoContribMinIntegral} anos de contribuição.<br>Aposentadoria Proporcional: ${idadeMinProporcional} anos de idade.`;
+                 alertaIdade.style.display = 'block';
+                 alertaIdade.style.color = '#ff9999';
+                 alertaIdade.style.borderLeft = '4px solid #ff9999';
             }
         }
         
