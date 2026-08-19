@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SouPE+ - Protótipo Previdência</title>
-    <!-- Link para o Chart.js (Gráficos) -->
+    <!-- Script de Gráficos -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Link para o arquivo CSS externo -->
+    <!-- Link para o CSS Externo -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -63,7 +63,7 @@
         </div>
     </div>
 
-    <!-- TELA: PREVIDÊNCIA -->
+    <!-- TELA: PREVIDÊNCIA (PRINCIPAL) -->
     <div id="view-prev" class="view">
         <div class="header-prev">
             <button class="btn-voltar" onclick="openHome()">←</button>
@@ -182,15 +182,21 @@
                     <span>Saldo Complementar Total:</span>
                     <strong id="ui-proj-total" style="font-size: 18px;">R$ 0,00</strong>
                 </div>
-                <div class="info-row highlight" style="border-top-color: rgba(255,255,255,0.2); color: #28A745; display:flex; flex-direction:column;">
+                <div class="info-row highlight" style="border-top-color: rgba(255,255,255,0.2); color: #fff; display:flex; flex-direction:column; padding-top: 15px;">
+                    <div style="display:flex; justify-content:space-between; width:100%; margin-bottom: 10px;">
+                        <span>Prev. Obrigatória Estimada (INSS):</span>
+                        <strong id="ui-proj-obrig" style="font-size: 18px; color: #63C5F1;">R$ 0,00 / mês</strong>
+                    </div>
                     <div style="display:flex; justify-content:space-between; width:100%;">
-                        <span>Aposentadoria Complementar Estimada:</span>
-                        <strong id="ui-proj-renda" style="font-size: 20px;">R$ 0,00 / mês</strong>
+                        <span>Aposentadoria Complementar:</span>
+                        <strong id="ui-proj-renda" style="font-size: 18px; color: #28A745;">R$ 0,00 / mês</strong>
                     </div>
                 </div>
                 <div class="alerta-idade" id="alerta-idade">
                     <!-- Gerado via JS -->
                 </div>
+                
+                <button class="btn-action" style="margin-top: 20px; background: #fff; color: var(--dark-blue);" onclick="abrirDetalhamento()">📊 Ver Detalhamento Anual</button>
             </div>
         </div>
 
@@ -203,22 +209,18 @@
                 <a href="https://www.funape.pe.gov.br/transparencia/investimentos" target="_blank" style="display: inline-block; margin-bottom: 25px; color: #fff; background-color: var(--primary-blue); padding: 10px 15px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 14px; width: 100%; text-align: center;">🌐 Acessar Portal Geral</a>
 
                 <div class="list-relatorios" style="display: flex; flex-direction: column;">
-                    
                     <div>
                         <strong style="font-size: 14px; color: var(--dark-blue);">Apresentação geral de Resultados da Carteira</strong><br>
                         <a href="https://drive.expresso.pe.gov.br/s/MnSfUzGeEOUOWzU" target="_blank" class="link-relatorio">2026</a> <span style="color:#ccc;">|</span> <a href="https://drive.expresso.pe.gov.br/s/RnfvnCCxdDem6Vn" target="_blank" class="link-relatorio">Anos anteriores</a>
                     </div>
-                    
                     <div>
                         <strong style="font-size: 14px; color: var(--dark-blue);">Composição da Carteira</strong><br>
                         <a href="https://drive.expresso.pe.gov.br/s/P9R3pbw9sYUUbNC" target="_blank" class="link-relatorio">2026</a> <span style="color:#ccc;">|</span> <a href="https://drive.expresso.pe.gov.br/s/bTUiTqxqcxLRXCI" target="_blank" class="link-relatorio">Anos anteriores</a>
                     </div>
-                    
                     <div>
                         <strong style="font-size: 14px; color: var(--dark-blue);">Relatórios Detalhados da Carteira</strong><br>
                         <a href="https://drive.expresso.pe.gov.br/s/fzwJBtodeXKs6UR" target="_blank" class="link-relatorio">2026</a> <span style="color:#ccc;">|</span> <a href="https://drive.expresso.pe.gov.br/s/Owa5KXz66EWscZt" target="_blank" class="link-relatorio">Anos anteriores</a>
                     </div>
-                    
                     <div>
                         <strong style="font-size: 14px; color: var(--dark-blue);">Relatório Anual da Carteira</strong><br>
                         <a href="https://drive.expresso.pe.gov.br/s/kBM4XMuUMf2Vhvw" target="_blank" class="link-relatorio">2025</a> <span style="color:#ccc;">|</span> <a href="https://drive.expresso.pe.gov.br/s/0r7QVGVfz8iiex8" target="_blank" class="link-relatorio">Anos anteriores</a>
@@ -240,12 +242,10 @@
                         <strong style="font-size: 14px; color: var(--dark-blue);">Autorização de Aplicação e Resgate - APR</strong><br>
                         <a href="https://drive.expresso.pe.gov.br/s/0r7QVGVfz8iiex8" target="_blank" class="link-relatorio">2026</a> <span style="color:#ccc;">|</span> <a href="https://drive.expresso.pe.gov.br/s/YUfegzsP2yiXEwF" target="_blank" class="link-relatorio">Anos anteriores</a>
                     </div>
-
                     <div>
                         <strong style="font-size: 14px; color: var(--dark-blue);">Demonstrativo das Aplicações (DAIR)</strong><br>
                         <a href="https://drive.expresso.pe.gov.br/s/Us8cjxSeojbzMYR" target="_blank" class="link-relatorio">2026</a> <span style="color:#ccc;">|</span> <a href="https://drive.expresso.pe.gov.br/s/GaCEDugD91L1Brk" target="_blank" class="link-relatorio">Anos anteriores</a>
                     </div>
-
                     <div>
                         <strong style="font-size: 14px; color: var(--dark-blue);">Relatório de Aderência à Política</strong><br>
                         <a href="https://drive.expresso.pe.gov.br/s/FxWPHrDH5Q1LAWZ" target="_blank" class="link-relatorio">2024</a>
@@ -253,7 +253,70 @@
                 </div>
             </div>
         </div>
+    </div>
 
+    <!-- TELA: DETALHAMENTO (NOVA TELA DE EXTRATO) -->
+    <div id="view-detalhes" class="view">
+        <div class="header-prev" style="background-color: var(--dark-blue); color: white;">
+            <button class="btn-voltar" style="color: white;" onclick="fecharDetalhamento()">←</button>
+            <h2 style="font-size: 18px;">Saldo e Extrato Anual</h2>
+        </div>
+        
+        <div class="content-prev">
+            <div class="input-group">
+                <select id="select-ano-detalhe" onchange="renderAnoDetalhe()" style="font-weight: bold; color: var(--dark-blue); font-size: 16px; border: 2px solid var(--primary-blue);">
+                </select>
+            </div>
+
+            <div class="card-info" style="text-align: center; border: 2px solid #e2e8f0;">
+                <p style="font-size: 12px; color: var(--text-light); text-transform: uppercase; font-weight: bold;">Crescimento da Conta no Ano</p>
+                <h2 id="det-saldo-ano" style="color: var(--success); font-size: 28px; margin: 10px 0;">R$ 0,00</h2>
+                
+                <div style="display: flex; justify-content: space-around; margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px;">
+                    <div>
+                        <p style="font-size: 11px; color: var(--text-light); font-weight: bold;">PESSOAL</p>
+                        <strong id="det-pessoal-ano">R$ 0,00</strong>
+                    </div>
+                    <div>
+                        <p style="font-size: 11px; color: var(--text-light); font-weight: bold;">PATRONAL</p>
+                        <strong id="det-patronal-ano">R$ 0,00</strong>
+                    </div>
+                </div>
+                <div style="margin-top: 15px; background: #f0f9ff; padding: 10px; border-radius: 8px;">
+                    <p style="font-size: 11px; color: var(--dark-blue); font-weight: bold;">RENDIMENTOS NO ANO</p>
+                    <strong id="det-rendimento-ano" style="font-size: 16px; color: var(--success);">R$ 0,00</strong>
+                </div>
+            </div>
+
+            <div class="sub-tabs">
+                <button class="sub-tab-btn active" id="btn-sub-saldo" onclick="switchSubTab('saldo')">SALDO DE CONTA</button>
+                <button class="sub-tab-btn" id="btn-sub-cont" onclick="switchSubTab('cont')">CONTRIBUIÇÕES</button>
+            </div>
+
+            <!-- SUB-TAB SALDO DE CONTA (GRÁFICOS) -->
+            <div id="sub-tab-saldo" class="sub-tab-content active">
+                <h3 style="font-size: 14px; margin-bottom: 10px; color: var(--dark-blue);">Composição do Saldo Total Acumulado</h3>
+                <div class="card-info">
+                    <div class="chart-container" style="height: 200px;">
+                        <canvas id="chartPizzaAcumulado"></canvas>
+                    </div>
+                </div>
+                
+                <h3 style="font-size: 14px; margin-bottom: 10px; color: var(--dark-blue);">Evolução no Ano (Aportes vs Rendimentos)</h3>
+                <div class="card-info">
+                    <div class="chart-container" style="height: 250px;">
+                        <canvas id="chartBarrasAno"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SUB-TAB CONTRIBUIÇÕES (LISTA MÊS A MÊS) -->
+            <div id="sub-tab-cont" class="sub-tab-content">
+                <div id="lista-meses-container">
+                    <!-- Gerado via JS -->
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Navegação Inferior -->
@@ -272,7 +335,7 @@
         </div>
     </div>
 
-    <!-- Link para o arquivo JavaScript externo -->
+    <!-- Script Externo -->
     <script src="script.js"></script>
 </body>
 </html>
