@@ -420,11 +420,17 @@ function renderAnoDetalhe() {
                         <span class="extrato-col">${formatBRL(mesData.patronal)}</span>
                     </div>
                 </div>
-                <div class="extrato-row" style="background: #f0f9ff; margin-top: 5px; padding: 10px 5px; border-radius: 4px;">
-                    <span style="flex:1; color: var(--dark-blue);">TOTAL DO MÊS</span>
+                <div class="extrato-row" style="border-bottom: none; padding-bottom: 0;">
+                    <span style="flex:1;">Rendimento da Conta</span>
+                    <div class="extrato-cols" style="justify-content: flex-end; width: 100%;">
+                        <span style="color: var(--success); font-weight:bold;">+${formatBRL(mesData.rendimento)}</span>
+                    </div>
+                </div>
+                <div class="extrato-row" style="background: #f0f9ff; margin-top: 10px; padding: 10px 5px; border-radius: 4px;">
+                    <span style="flex:1; color: var(--dark-blue); font-weight: bold; font-size: 11px;">TOTAL APORTADO</span>
                     <div class="extrato-cols">
-                        <span class="extrato-col" style="color: var(--dark-blue);">${formatBRL(totalMesPes)}</span>
-                        <span class="extrato-col" style="color: var(--dark-blue);">${formatBRL(totalMesPat)}</span>
+                        <span class="extrato-col" style="color: var(--dark-blue); font-weight: bold;">${formatBRL(totalMesPes)}</span>
+                        <span class="extrato-col" style="color: var(--dark-blue); font-weight: bold;">${formatBRL(totalMesPat)}</span>
                     </div>
                 </div>
             </div>
@@ -440,9 +446,9 @@ function renderAnoDetalhe() {
     chartPizza = new Chart(ctxPizza, {
         type: 'pie',
         data: {
-            labels: ['Pessoal (Total)', 'Patronal (Total)', 'Rendimentos (Total)'],
+            labels: ['Aporte Pessoal', 'Aporte Patronal', 'Rendimentos'],
             datasets: [{
-                data: [detalheGlobal.totalPessoal, detalheGlobal.totalPatronal, detalheGlobal.totalRendimento],
+                data: [dadosAno.totalPessoal, dadosAno.totalPatronal, dadosAno.totalRendimento],
                 backgroundColor: ['#63C5F1', '#1A365D', '#28A745'],
                 borderWidth: 0
             }]
@@ -487,3 +493,4 @@ function renderAnoDetalhe() {
 window.onload = function() {
     recalcularBase();
 };
+
