@@ -4,20 +4,44 @@ const tetoINSS = 8475.55;
 const ggov_pe = {
     food: 334.40,
     matrix1: [
-      { ref: "R1", bruto: 12029.44 }, { ref: "R1", bruto: 12029.44 }, { ref: "R1", bruto: 12029.44 },
-      { ref: "R2", bruto: 12555.72 }, { ref: "R3", bruto: 13105.68 }, { ref: "R4", bruto: 13616.53 },
-      { ref: "R5", bruto: 14147.81 }, { ref: "R6", bruto: 14769.42 }, { ref: "R7", bruto: 15418.99 },
-      { ref: "R8", bruto: 16022.38 }, { ref: "R9", bruto: 19159.97 }, { ref: "R10", bruto: 19536.48 },
-      { ref: "R11", bruto: 19920.52 }, { ref: "R12", bruto: 20312.25 }, { ref: "R13", bruto: 21311.14 },
-      { ref: "R14", bruto: 21940.44 }, { ref: "R15", bruto: 22588.62 }, { ref: "R16", bruto: 23256.25 }
+      { ref: "R1", liq: 8534.99, bruto: 12029.44 },
+      { ref: "R1", liq: 8534.99, bruto: 12029.44 },
+      { ref: "R1", liq: 8534.99, bruto: 12029.44 },
+      { ref: "R2", liq: 8863.12, bruto: 12555.72 },
+      { ref: "R3", liq: 9206.02, bruto: 13105.68 },
+      { ref: "R4", liq: 9524.54, bruto: 13616.53 },
+      { ref: "R5", liq: 9855.79, bruto: 14147.81 },
+      { ref: "R6", liq: 10243.36, bruto: 14769.42 },
+      { ref: "R7", liq: 10648.37, bruto: 15418.99 },
+      { ref: "R8", liq: 11024.58, bruto: 16022.38 },
+      { ref: "R9", liq: 12980.87, bruto: 19159.97 },
+      { ref: "R10", liq: 13215.63, bruto: 19536.48 },
+      { ref: "R11", liq: 13455.08, bruto: 19920.52 },
+      { ref: "R12", liq: 13699.32, bruto: 20312.25 },
+      { ref: "R13", liq: 14322.13, bruto: 21311.14 },
+      { ref: "R14", liq: 14714.50, bruto: 21940.44 },
+      { ref: "R15", liq: 15118.64, bruto: 22588.62 },
+      { ref: "R16", liq: 15534.90, bruto: 23256.25 }
     ],
     matrix2: [
-      { ref: "R1", bruto: 14953.20 }, { ref: "R1", bruto: 14953.20 }, { ref: "R1", bruto: 14953.20 },
-      { ref: "R2", bruto: 15611.05 }, { ref: "R3", bruto: 16298.50 }, { ref: "R4", bruto: 16937.06 },
-      { ref: "R5", bruto: 17601.17 }, { ref: "R6", bruto: 18378.17 }, { ref: "R7", bruto: 19190.14 },
-      { ref: "R8", bruto: 19944.37 }, { ref: "R9", bruto: 23866.36 }, { ref: "R10", bruto: 24337.00 },
-      { ref: "R11", bruto: 24817.05 }, { ref: "R12", bruto: 25306.71 }, { ref: "R13", bruto: 26585.71 },
-      { ref: "R14", bruto: 27372.34 }, { ref: "R15", bruto: 28182.57 }, { ref: "R16", bruto: 29017.10 }
+      { ref: "R1", liq: 10410.09, bruto: 14953.20 },
+      { ref: "R1", liq: 10410.09, bruto: 14953.20 },
+      { ref: "R1", liq: 10410.09, bruto: 14953.20 },
+      { ref: "R2", liq: 10820.26, bruto: 15611.05 },
+      { ref: "R3", liq: 11248.88, bruto: 16298.50 },
+      { ref: "R4", liq: 11647.03, bruto: 16937.06 },
+      { ref: "R5", liq: 12061.10, bruto: 17601.17 },
+      { ref: "R6", liq: 12545.56, bruto: 18378.17 },
+      { ref: "R7", liq: 13051.82, bruto: 19190.14 },
+      { ref: "R8", liq: 13522.08, bruto: 19944.37 },
+      { ref: "R9", liq: 15967.45, bruto: 23866.36 },
+      { ref: "R10", liq: 16260.89, bruto: 24337.00 },
+      { ref: "R11", liq: 16560.20, bruto: 24817.05 },
+      { ref: "R12", liq: 16865.50, bruto: 25306.71 },
+      { ref: "R13", liq: 17674.40, bruto: 26585.71 },
+      { ref: "R14", liq: 18076.86, bruto: 27372.34 },
+      { ref: "R15", liq: 18582.04, bruto: 28182.57 },
+      { ref: "R16", liq: 19102.37, bruto: 29017.10 }
     ]
 };
 
@@ -25,12 +49,12 @@ const ggov_pe = {
 const compFunaprev = {
     total: 1474871586.25,
     classes: {
-        'Títulos Públicos': 356860264.44, // Soma NTN-Bs
-        'Fundos Renda Fixa': 1038437713.70, // Soma Fundos RF
-        'Letras Financeiras': 56551505.35, // Soma LFs
+        'Títulos Públicos': 356860264.44,
+        'Fundos Renda Fixa': 1038437713.70,
+        'Letras Financeiras': 56551505.35,
         'Fundos Multimercado': 13212885.37,
-        'Fundos Renda Variável': 20370768.01, // Soma Ações/BDR
-        'Disponibilidades': 3439906.40 // Caixa/Bancos
+        'Fundos Renda Variável': 20370768.01,
+        'Disponibilidades': 3439906.40
     },
     detalhes: [
         {nome: "Fundo 100% Títulos Públicos CAIXA BRASIL (FUNAPREV)", valor: 326397019.63, perc: "22,13%"},
@@ -124,6 +148,7 @@ function abrirDetalhamento() {
     document.getElementById('view-detalhes').classList.add('active');
     window.scrollTo(0, 0);
     
+    // Popula o select com os anos gerados na simulação
     let selectAno = document.getElementById('select-ano-detalhe');
     selectAno.innerHTML = '';
     
@@ -296,6 +321,19 @@ function recalcularBase() {
 
     document.getElementById('ui-nivel-atual').innerText = nivelAtualTexto;
 
+    // Atualização da Prévia do Contracheque (Home)
+    let anosCarreiraHoje = Math.floor(servidor.mesesContribuicao / 12);
+    let idxHoje = Math.min(anosCarreiraHoje, 17);
+    let refSalarioHoje = anosCarreiraHoje < 3 ? ggov_pe.matrix1[0] : ggov_pe.matrix2[idxHoje];
+    
+    let brutoHoje = refSalarioHoje.bruto;
+    let liqHoje = refSalarioHoje.liq;
+    let descHoje = brutoHoje - liqHoje;
+
+    document.getElementById('home-contra-bruto').innerText = formatBRL(brutoHoje);
+    document.getElementById('home-contra-desc').innerText = "- " + formatBRL(descHoje);
+    document.getElementById('home-contra-liq').innerText = formatBRL(liqHoje);
+
     gerarBotoesAnos();
     executarSimulacao();
 }
@@ -425,14 +463,6 @@ function executarSimulacao() {
             document.getElementById('ui-saldo-atual').innerText = formatBRL(saldoAtualCongelado);
             document.getElementById('ui-comp-serv').innerText = formatBRL(aportePessoal);
             document.getElementById('ui-comp-est').innerText = formatBRL(aportePatronal);
-            
-            // Calculo da Prev Obrigatória no Momento PRESENTE (Pra home)
-            let genero = document.getElementById('inputGenero').value;
-            let reqTempo = genero === 'M' ? 35 : 30;
-            let anosContr = mesesPassados / 12;
-            let fatorHoje = Math.min(1, anosContr / reqTempo);
-            let prevHoje = tetoINSS * fatorHoje;
-            document.getElementById('home-prev-obrig').innerText = formatBRL(prevHoje);
         }
 
         dataReferencia.setMonth(dataReferencia.getMonth() + 1);
@@ -625,14 +655,12 @@ function renderAnoDetalhe() {
             plugins: { legend: { position: 'bottom' } },
             scales: {
                 x: { stacked: true },
-                y: { stacked: false } // Mudado para não empilhar e ver a relação visual
+                y: { stacked: false } 
             }
         }
     });
 }
 
-// Inicia
 window.onload = function() {
     recalcularBase();
 };
-
