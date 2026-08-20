@@ -21,6 +21,63 @@ const ggov_pe = {
     ]
 };
 
+// DADOS DE COMPOSIÇÃO DE CARTEIRA REAIS
+const compFunaprev = {
+    total: 1474871586.25,
+    classes: {
+        'Títulos Públicos': 356860264.44, // Soma NTN-Bs
+        'Fundos Renda Fixa': 1038437713.70, // Soma Fundos RF
+        'Letras Financeiras': 56551505.35, // Soma LFs
+        'Fundos Multimercado': 13212885.37,
+        'Fundos Renda Variável': 20370768.01, // Soma Ações/BDR
+        'Disponibilidades': 3439906.40 // Caixa/Bancos
+    },
+    detalhes: [
+        {nome: "Fundo 100% Títulos Públicos CAIXA BRASIL (FUNAPREV)", valor: 326397019.63, perc: "22,13%"},
+        {nome: "Fundo 100% Títulos Públicos CAIXA BRASIL (FUNAFIN)", valor: 278311922.30, perc: "18,87%"},
+        {nome: "Fundo Renda Fixa BRADESCO PREMIUM (FUNAPREV)", valor: 127854332.80, perc: "8,67%"},
+        {nome: "Fundo CAIXA BRASIL RENDA FIXA DI", valor: 80750217.24, perc: "5,48%"},
+        {nome: "Títulos Públicos Tesouro IPCA+ NTN-B 92500944", valor: 51397814.77, perc: "3,48%"},
+        {nome: "Títulos Públicos Tesouro IPCA+ NTN-B 92690930", valor: 31414220.63, perc: "2,13%"},
+        {nome: "Operação com Letras Financeiras L.F. (29.056.395,42)", valor: 29056395.42, perc: "1,97%"},
+        {nome: "Fundo Cotas CAIXA BRASIL (FUNAFIN)", valor: 24722887.91, perc: "1,69%"},
+        {nome: "Demais Títulos Públicos IPCA+ NTN-B", valor: 274048229.04, perc: "18,58%"},
+        {nome: "Demais Letras Financeiras", valor: 27495109.93, perc: "1,86%"},
+        {nome: "Fundo CAIXA BOLSA AMERICANA MULTIMERCADO", valor: 13212885.37, perc: "0,90%"},
+        {nome: "Fundo CAIXA INSTITUCIONAL BDR NIVEL 1", valor: 10053302.50, perc: "0,68%"},
+        {nome: "Fundos de Renda Variável (Diversos)", valor: 10317465.51, perc: "0,70%"},
+        {nome: "Disponibilidades Financeiras", valor: 3439906.40, perc: "0,23%"}
+    ]
+};
+
+const compPeprevcom = {
+    total: 31170009.39,
+    classes: {
+        'Títulos Públicos': 14880556.35,
+        'Fundos Renda Fixa': 6635837.75,
+        'Fundos Multimercado': 48118.79,
+        'Fundos Renda Variável': 77547.09,
+        'Fundos Exterior': 156735.59
+    },
+    detalhes: [
+        {nome: "NTN-B 15/08/2050 (Vencimento)", valor: 8582147.51, perc: "27,53%"},
+        {nome: "NTN-B 15/05/2045 (Vencimento)", valor: 7527271.18, perc: "24,15%"},
+        {nome: "BB PREVIDÊNCIA LIQUIDEZ RESP LIMITADA FIF RENDA FIXA", valor: 5686946.92, perc: "18,24%"},
+        {nome: "NTN-B 15/05/2055 (Vencimento)", valor: 3499659.11, perc: "11,23%"},
+        {nome: "NTN-B 15/08/2060 (Vencimento)", valor: 2684015.67, perc: "8,61%"},
+        {nome: "BB PREVIDÊNCIA IMA-B 5 ATIVO FIF RESP LIMITADA", valor: 757251.38, perc: "2,43%"},
+        {nome: "NTN-F 01/01/2031 (Mercado)", valor: 683162.82, perc: "2,19%"},
+        {nome: "NTN-B 15/05/2045 (Mercado)", valor: 409666.03, perc: "1,31%"},
+        {nome: "NTN-B 15/05/2035 (Vencimento)", valor: 306852.99, perc: "0,98%"},
+        {nome: "BB PREVIDÊNCIA TP RESP LIMITADA FIF RENDA FIXA CRÉDITO PRIVA", valor: 191639.45, perc: "0,61%"},
+        {nome: "Demais Títulos Públicos (Mercado)", valor: 559499.81, perc: "1,80%"},
+        {nome: "BB SCHRODER INVESTIMENTO NO EXTERIOR RESP LIMITADA FIF MULTI", valor: 128641.23, perc: "0,43%"},
+        {nome: "BB PREVIDÊNCIA RESP LIMITADA FIF AÇÕES", valor: 77547.09, perc: "0,25%"},
+        {nome: "BB PREVIDÊNCIA MÓDULO FIF CIC MULTIMERCADO", valor: 48118.79, perc: "0,15%"},
+        {nome: "BB GLOBAL SELECT EQUITY IE RESP LIMITADA FIF MULTIMERCADO", valor: 28094.36, perc: "0,09%"}
+    ]
+};
+
 // Salário inicial padrão e Variáveis Globais
 const salarioR1M1 = ggov_pe.matrix1[0].bruto - ggov_pe.food; 
 
@@ -36,6 +93,9 @@ let detalheGlobal = { anos: {}, totalPessoal: 0, totalPatronal: 0, totalRendimen
 
 let chartPizza = null;
 let chartBarras = null;
+let chartResumoFunaprev = null;
+let chartResumoPeprevcom = null;
+let chartComposicaoDetalhada = null;
 
 const formatBRL = (valor) => {
     return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -43,26 +103,27 @@ const formatBRL = (valor) => {
 
 // --- NAVEGAÇÃO SPA & TABS ---
 function openPrevidencia() {
-    document.getElementById('view-home').classList.remove('active');
-    document.getElementById('view-detalhes').classList.remove('active');
+    fecharTelas();
     document.getElementById('view-prev').classList.add('active');
     window.scrollTo(0, 0);
     recalcularBase();
 }
 
 function openHome() {
-    document.getElementById('view-prev').classList.remove('active');
-    document.getElementById('view-detalhes').classList.remove('active');
+    fecharTelas();
     document.getElementById('view-home').classList.add('active');
     window.scrollTo(0, 0);
 }
 
+function fecharTelas() {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+}
+
 function abrirDetalhamento() {
-    document.getElementById('view-prev').classList.remove('active');
+    fecharTelas();
     document.getElementById('view-detalhes').classList.add('active');
     window.scrollTo(0, 0);
     
-    // Popula o select com os anos gerados na simulação
     let selectAno = document.getElementById('select-ano-detalhe');
     selectAno.innerHTML = '';
     
@@ -74,7 +135,6 @@ function abrirDetalhamento() {
         selectAno.appendChild(opt);
     });
 
-    // Seleciona o último ano disponível por padrão
     if(anosDisponiveis.length > 0) {
         selectAno.value = anosDisponiveis[anosDisponiveis.length - 1];
     }
@@ -83,9 +143,63 @@ function abrirDetalhamento() {
 }
 
 function fecharDetalhamento() {
-    document.getElementById('view-detalhes').classList.remove('active');
+    fecharTelas();
     document.getElementById('view-prev').classList.add('active');
 }
+
+function abrirComposicao(fundo) {
+    fecharTelas();
+    document.getElementById('view-composicao').classList.add('active');
+    window.scrollTo(0, 0);
+
+    let dados = fundo === 'funaprev' ? compFunaprev : compPeprevcom;
+    document.getElementById('titulo-composicao').innerText = `Composição da Carteira (${fundo === 'funaprev' ? 'Funaprev' : 'PE-PREVCOM'})`;
+    document.getElementById('comp-total-valor').innerText = formatBRL(dados.total);
+
+    // Grafico detalhado
+    if(chartComposicaoDetalhada) chartComposicaoDetalhada.destroy();
+    const ctx = document.getElementById('chartComposicaoDetalhe').getContext('2d');
+    
+    let labels = Object.keys(dados.classes);
+    let valores = Object.values(dados.classes);
+    let cores = ['#1A365D', '#63C5F1', '#28A745', '#ff9999', '#ffdd57', '#ccc'];
+
+    chartComposicaoDetalhada = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: valores,
+                backgroundColor: cores.slice(0, labels.length),
+                borderWidth: 0
+            }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom'} } }
+    });
+
+    // Lista de ativos
+    let lista = document.getElementById('lista-ativos-container');
+    lista.innerHTML = '';
+    dados.detalhes.forEach(det => {
+        lista.innerHTML += `
+        <div style="background: #fff; border: 1px solid #eee; padding: 12px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center;">
+            <div style="flex: 1; padding-right: 10px;">
+                <p style="font-size: 12px; font-weight: bold; color: var(--dark-blue); line-height: 1.2;">${det.nome}</p>
+                <p style="font-size: 11px; color: var(--text-light); margin-top: 4px;">${formatBRL(det.valor)}</p>
+            </div>
+            <div style="background: #f0f9ff; color: var(--primary-blue); font-weight: bold; padding: 5px 8px; border-radius: 4px; font-size: 13px;">
+                ${det.perc}
+            </div>
+        </div>`;
+    });
+}
+
+function fecharComposicao() {
+    fecharTelas();
+    document.getElementById('view-prev').classList.add('active');
+    switchTab('transparencia');
+}
+
 
 function switchTab(tabId) {
     document.getElementById('btn-simulacao').classList.remove('active');
@@ -95,6 +209,8 @@ function switchTab(tabId) {
     
     document.getElementById('btn-' + tabId).classList.add('active');
     document.getElementById('tab-' + tabId).classList.add('active');
+
+    if(tabId === 'transparencia') renderGraficosTransparencia();
 }
 
 function switchSubTab(tab) {
@@ -124,9 +240,11 @@ function recalcularBase() {
     const inputSal = document.getElementById('inputSalario');
     const dataIngressoInput = document.getElementById('inputDataIngresso').value;
     
+    let taxaAnual = parseFloat(document.getElementById('inputTaxa').value) || 6; 
+    let taxaMensal = Math.pow(1 + (taxaAnual / 100), 1/12) - 1;
+
     let nivelAtualTexto = "Matriz 1 / R1";
 
-    // Define Tempo e Base (Historico vs Padrão)
     if (usarHistorico && dataIngressoInput) {
         let dataIngresso = new Date(dataIngressoInput);
         let hoje = new Date(); 
@@ -178,7 +296,6 @@ function recalcularBase() {
 
     document.getElementById('ui-nivel-atual').innerText = nivelAtualTexto;
 
-    // Call Execução que vai rodar o ciclo desde o dia 0 e atualizar valores
     gerarBotoesAnos();
     executarSimulacao();
 }
@@ -243,11 +360,9 @@ function executarSimulacao() {
     let taxaMensal = Math.pow(1 + (taxaAnual / 100), 1/12) - 1;
     let expectativaVida = parseInt(document.getElementById('inputExpectativa').value) || 82;
 
-    // Reset Detalhamento Global
     detalheGlobal = { anos: {}, totalPessoal: 0, totalPatronal: 0, totalRendimento: 0 };
     let saldoSimulacao = 0;
     
-    // Controladores de Data (Começa do passado ou de hoje)
     let dataReferencia = new Date();
     if (usarHistorico && document.getElementById('inputDataIngresso').value) {
         dataReferencia = new Date(document.getElementById('inputDataIngresso').value);
@@ -257,9 +372,8 @@ function executarSimulacao() {
     let mesesFuturos = anoSelecionado * 12;
     let totalMesesSimular = mesesPassados + mesesFuturos;
 
-    let saldoAtualCongelado = 0; // Guardará o saldo do mês "Atual" para a UI de resumo
+    let saldoAtualCongelado = 0;
 
-    // Laço único Unificado (Passado + Futuro)
     for (let m = 1; m <= totalMesesSimular; m++) {
         let anosCarreira = Math.floor((m - 1) / 12);
         let salarioDoMes = servidor.salarioSimulado; 
@@ -270,7 +384,6 @@ function executarSimulacao() {
             salarioDoMes = refSalario.bruto - ggov_pe.food;
         }
 
-        // Rendimentos e Aportes
         let rendimentoMes = saldoSimulacao * taxaMensal;
         saldoSimulacao += rendimentoMes;
 
@@ -280,7 +393,6 @@ function executarSimulacao() {
         
         saldoSimulacao += (aportePessoal + aportePatronal);
 
-        // Alimentar Detalhamento Anual
         let anoStr = dataReferencia.getFullYear().toString();
         let nomeMes = dataReferencia.toLocaleString('pt-BR', { month: 'long' });
         
@@ -303,11 +415,9 @@ function executarSimulacao() {
         detalheGlobal.totalPatronal += aportePatronal;
         detalheGlobal.totalRendimento += rendimentoMes;
 
-        // Se o loop chegou exatamente ao "Hoje", guardamos a foto do momento
         if (m === mesesPassados) {
             saldoAtualCongelado = saldoSimulacao;
             
-            // Atualiza quadro do Mês Atual
             let descontoObrig = Math.min(salarioDoMes, tetoINSS) * 0.14;
             document.getElementById('ui-salario').innerText = formatBRL(salarioDoMes);
             document.getElementById('ui-teto').innerText = formatBRL(tetoINSS);
@@ -315,12 +425,19 @@ function executarSimulacao() {
             document.getElementById('ui-saldo-atual').innerText = formatBRL(saldoAtualCongelado);
             document.getElementById('ui-comp-serv').innerText = formatBRL(aportePessoal);
             document.getElementById('ui-comp-est').innerText = formatBRL(aportePatronal);
+            
+            // Calculo da Prev Obrigatória no Momento PRESENTE (Pra home)
+            let genero = document.getElementById('inputGenero').value;
+            let reqTempo = genero === 'M' ? 35 : 30;
+            let anosContr = mesesPassados / 12;
+            let fatorHoje = Math.min(1, anosContr / reqTempo);
+            let prevHoje = tetoINSS * fatorHoje;
+            document.getElementById('home-prev-obrig').innerText = formatBRL(prevHoje);
         }
 
         dataReferencia.setMonth(dataReferencia.getMonth() + 1);
     }
     
-    // Cálculo Renda Estimada e Validações Legais
     let idadeFutura = servidor.idadeAtual + anoSelecionado;
     let mesesSobrevivencia = (expectativaVida - idadeFutura) * 12;
     
@@ -332,7 +449,6 @@ function executarSimulacao() {
     }
 
     let genero = document.getElementById('inputGenero').value;
-    let generoTexto = genero === 'M' ? 'Homem' : 'Mulher';
     let idadeMinIntegral = genero === 'M' ? 60 : 55;
     let tempoContribMinIntegral = genero === 'M' ? 35 : 30;
     let idadeMinProporcional = genero === 'M' ? 65 : 60;
@@ -343,14 +459,10 @@ function executarSimulacao() {
     let isProporcional = (idadeFutura >= idadeMinProporcional);
     let isCompulsoria = (idadeFutura >= 75);
 
-    // Calcular Previdência Obrigatória Estimada
     let prevObrigEstimada = 0;
-    if (isIntegral || isProporcional || isCompulsoria) {
-        let fatorTempo = Math.min(1, tempoTotalContribuicaoProjetado / tempoContribMinIntegral);
-        prevObrigEstimada = tetoINSS * fatorTempo; // Proporcionalidade Limitada ao Teto
-    }
+    let fatorTempo = Math.min(1, tempoTotalContribuicaoProjetado / tempoContribMinIntegral);
+    prevObrigEstimada = tetoINSS * fatorTempo; 
 
-    // Renderizando Projeção
     document.getElementById('ui-proj-idade').innerText = idadeFutura + " anos";
     document.getElementById('ui-proj-tempo-cont').innerText = tempoTotalContribuicaoProjetado.toFixed(1) + " anos";
     document.getElementById('ui-proj-total').innerText = formatBRL(saldoSimulacao);
@@ -359,42 +471,73 @@ function executarSimulacao() {
 
     let alertaIdade = document.getElementById('alerta-idade');
     if (isCompulsoria) {
-         alertaIdade.innerHTML = `<strong>Aposentadoria Compulsória</strong> aos 75 anos. O valor mensal simula a renda do seu saldo complementar nesta data.`;
+         alertaIdade.innerHTML = `<strong>Aposentadoria Compulsória</strong> aos 75 anos. A prev. obrigatória será limitato ao teto e proporcional (${(fatorTempo*100).toFixed(0)}%). O valor complementar simula a renda do saldo.`;
          alertaIdade.style.display = 'block';
          alertaIdade.style.color = '#a5d8ff';
          alertaIdade.style.borderLeft = '4px solid #a5d8ff';
     } else if (isIntegral) {
-         alertaIdade.innerHTML = `✅ <strong>Requisitos de Integralidade Atingidos!</strong> Você terá ${idadeFutura} anos de idade e baterá o tempo mínimo de contribuição.`;
+         alertaIdade.innerHTML = `✅ <strong>Requisitos de Integralidade Atingidos!</strong> Você terá ${idadeFutura} anos de idade e baterá o tempo mínimo de contribuição. A prev. obrigatória atinge o teto do INSS.`;
          alertaIdade.style.display = 'block';
          alertaIdade.style.color = '#28A745'; 
          alertaIdade.style.borderLeft = '4px solid #28A745';
     } else if (isProporcional) {
-         alertaIdade.innerHTML = `⚠️ <strong>Atenção:</strong> Você cumpre apenas a idade para aposentadoria <strong>proporcional</strong> (${idadeMinProporcional} anos). Faltará tempo de contribuição para a integral. (Obrigatória reduzida).`;
+         alertaIdade.innerHTML = `⚠️ <strong>Atenção:</strong> Você cumpre apenas a idade para aposentadoria <strong>proporcional</strong> (${idadeMinProporcional} anos). A obrigatória será reduzida a ${(fatorTempo*100).toFixed(0)}% do teto.`;
          alertaIdade.style.display = 'block';
          alertaIdade.style.color = '#ffdd57';
          alertaIdade.style.borderLeft = '4px solid #ffdd57';
     } else {
-         alertaIdade.innerHTML = `⛔ <strong>Atenção: Requisitos Não Atingidos.</strong><br>Você não tem idade/tempo para receber benefícios oficiais nesta data.`;
+         alertaIdade.innerHTML = `⛔ <strong>Atenção: Requisitos Não Atingidos.</strong> Você não tem idade/tempo para aposentadoria voluntária nesta data. <br><br><i>*Em caso de aposentadoria por invalidez precoce, o benefício obrigatório estimado seria proporcional ao tempo (${(fatorTempo*100).toFixed(0)}% do Teto INSS).</i>`;
          alertaIdade.style.display = 'block';
          alertaIdade.style.color = '#ff9999';
          alertaIdade.style.borderLeft = '4px solid #ff9999';
     }
 }
 
-// Renderiza a Tela Detalhada para o Ano Selecionado
+function renderGraficosTransparencia() {
+    if(chartResumoFunaprev) chartResumoFunaprev.destroy();
+    if(chartResumoPeprevcom) chartResumoPeprevcom.destroy();
+
+    const ctxFunaprev = document.getElementById('chartFunaprevResumo').getContext('2d');
+    chartResumoFunaprev = new Chart(ctxFunaprev, {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(compFunaprev.classes),
+            datasets: [{
+                data: Object.values(compFunaprev.classes),
+                backgroundColor: ['#1A365D', '#63C5F1', '#28A745', '#ffdd57', '#ff9999', '#ccc'],
+                borderWidth: 0
+            }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+    });
+
+    const ctxPeprevcom = document.getElementById('chartPeprevcomResumo').getContext('2d');
+    chartResumoPeprevcom = new Chart(ctxPeprevcom, {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(compPeprevcom.classes),
+            datasets: [{
+                data: Object.values(compPeprevcom.classes),
+                backgroundColor: ['#1A365D', '#63C5F1', '#ffdd57', '#ff9999', '#9933cc'],
+                borderWidth: 0
+            }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+    });
+}
+
+
 function renderAnoDetalhe() {
     let ano = document.getElementById('select-ano-detalhe').value;
     let dadosAno = detalheGlobal.anos[ano];
     
     if(!dadosAno) return;
     
-    // Atualiza Resumo Superior do Detalhamento
     document.getElementById('det-saldo-ano').innerText = formatBRL(dadosAno.totalPessoal + dadosAno.totalPatronal + dadosAno.totalRendimento);
     document.getElementById('det-pessoal-ano').innerText = formatBRL(dadosAno.totalPessoal);
     document.getElementById('det-patronal-ano').innerText = formatBRL(dadosAno.totalPatronal);
     document.getElementById('det-rendimento-ano').innerText = formatBRL(dadosAno.totalRendimento);
 
-    // Renderiza Extrato Mensal (Aba Contribuições)
     let listaContainer = document.getElementById('lista-meses-container');
     listaContainer.innerHTML = '';
     
@@ -420,17 +563,17 @@ function renderAnoDetalhe() {
                         <span class="extrato-col">${formatBRL(mesData.patronal)}</span>
                     </div>
                 </div>
-                <div class="extrato-row" style="border-bottom: none; padding-bottom: 0;">
-                    <span style="flex:1;">Rendimento da Conta</span>
-                    <div class="extrato-cols" style="justify-content: flex-end; width: 100%;">
-                        <span style="color: var(--success); font-weight:bold;">+${formatBRL(mesData.rendimento)}</span>
-                    </div>
-                </div>
-                <div class="extrato-row" style="background: #f0f9ff; margin-top: 10px; padding: 10px 5px; border-radius: 4px;">
-                    <span style="flex:1; color: var(--dark-blue); font-weight: bold; font-size: 11px;">TOTAL APORTADO</span>
+                <div class="extrato-row" style="background: #f0f9ff; margin-top: 5px; padding: 10px 5px; border-radius: 4px;">
+                    <span style="flex:1; color: var(--dark-blue); font-weight: bold; font-size: 11px;">TOTAL APORTADO NO MÊS</span>
                     <div class="extrato-cols">
                         <span class="extrato-col" style="color: var(--dark-blue); font-weight: bold;">${formatBRL(totalMesPes)}</span>
                         <span class="extrato-col" style="color: var(--dark-blue); font-weight: bold;">${formatBRL(totalMesPat)}</span>
+                    </div>
+                </div>
+                <div class="extrato-row" style="border-bottom: none; padding-top: 15px;">
+                    <span style="flex:1; color: var(--text-light); font-size: 11px;">Rendimento do Fundo no Mês:</span>
+                    <div class="extrato-cols" style="justify-content: flex-end; width: 100%;">
+                        <span style="color: var(--success); font-weight:bold; font-size: 14px;">+${formatBRL(mesData.rendimento)}</span>
                     </div>
                 </div>
             </div>
@@ -438,7 +581,6 @@ function renderAnoDetalhe() {
         listaContainer.innerHTML += html;
     });
 
-    // Renderiza Gráficos (Aba Saldo de Conta)
     if(chartPizza) chartPizza.destroy();
     if(chartBarras) chartBarras.destroy();
 
@@ -446,10 +588,10 @@ function renderAnoDetalhe() {
     chartPizza = new Chart(ctxPizza, {
         type: 'pie',
         data: {
-            labels: ['Aporte Pessoal', 'Aporte Patronal', 'Rendimentos'],
+            labels: ['Total de Aportes no Ano', 'Total de Rendimentos no Ano'],
             datasets: [{
-                data: [dadosAno.totalPessoal, dadosAno.totalPatronal, dadosAno.totalRendimento],
-                backgroundColor: ['#63C5F1', '#1A365D', '#28A745'],
+                data: [dadosAno.totalPessoal + dadosAno.totalPatronal, dadosAno.totalRendimento],
+                backgroundColor: ['#1A365D', '#28A745'],
                 borderWidth: 0
             }]
         },
@@ -483,7 +625,7 @@ function renderAnoDetalhe() {
             plugins: { legend: { position: 'bottom' } },
             scales: {
                 x: { stacked: true },
-                y: { stacked: true }
+                y: { stacked: false } // Mudado para não empilhar e ver a relação visual
             }
         }
     });
