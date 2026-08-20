@@ -6,7 +6,6 @@
     <title>SouPE+ - Protótipo Previdência</title>
     <!-- Script de Gráficos -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Link para o CSS Externo -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -34,6 +33,14 @@
                     Crachá Digital
                 </div>
             </div>
+            
+            <div class="card-info" style="margin-top: 15px; margin-bottom: 0; background: var(--dark-blue); color: white;">
+                <h3 style="color: #63C5F1; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 10px; margin-bottom: 10px; font-size: 14px;">PREVIDÊNCIA OBRIGATÓRIA (ESTIMATIVA ATUAL)</h3>
+                <div style="display:flex; justify-content:space-between; align-items: center;">
+                    <span style="font-size: 12px; color: #ccc;">Benefício estimado:</span>
+                    <strong id="home-prev-obrig" style="font-size: 18px; color: #28A745;">R$ 0,00</strong>
+                </div>
+            </div>
         </div>
 
         <div class="services-section">
@@ -57,7 +64,7 @@
                 </div>
                 <div class="service-card" onclick="openPrevidencia()" style="border: 2px solid var(--primary-blue); background: #f0f9ff;">
                     <div class="service-icon">📈</div>
-                    <div class="service-title" style="color: var(--dark-blue); font-weight: bold;">Simulador Previdência (Funaprev)</div>
+                    <div class="service-title" style="color: var(--dark-blue); font-weight: bold;">Simulador Previdência</div>
                 </div>
             </div>
         </div>
@@ -105,7 +112,7 @@
             </div>
 
             <div class="card-info" style="border-left: 4px solid var(--success);">
-                <h3>Previdência Complementar</h3>
+                <h3>Previdência Complementar (PE-PREVCOM)</h3>
                 <div class="info-row">
                     <span>Saldo Acumulado Atual:</span>
                     <strong id="ui-saldo-atual">R$ 0,00</strong>
@@ -130,7 +137,7 @@
                     <input type="checkbox" id="toggleCarreira" onchange="recalcularBase()" checked>
                     <label for="toggleCarreira">Simular progressão de carreira (GGOV-PE)</label>
                 </div>
-                <p style="font-size:11px; color:#666; margin-bottom:15px;">Com a carreira ativa, o sistema recalcula sua faixa anualmente (progressão da Matriz 1 para Matriz 2 após 3 anos).</p>
+                <p style="font-size:11px; color:#666; margin-bottom:15px;">Com a carreira ativa, o sistema recalcula sua faixa anualmente.</p>
                 
                 <div class="input-group checkbox-group" style="background: #f0f9ff;">
                     <input type="checkbox" id="toggleHistorico" onchange="toggleHistoricoInput(); recalcularBase();">
@@ -139,7 +146,7 @@
                 <div class="input-group" id="box-data-ingresso" style="display: none; padding-left: 20px; border-left: 2px solid var(--primary-blue); margin-left: 5px;">
                     <label>Data de Ingresso no Estado</label>
                     <input type="date" id="inputDataIngresso" onchange="recalcularBase()">
-                    <p style="font-size:11px; color:#666; margin-top:5px;">Ao definir uma data, o sistema recalculará retroativamente o saldo que você já deveria ter acumulado até hoje.</p>
+                    <p style="font-size:11px; color:#666; margin-top:5px;">O sistema recalculará retroativamente o saldo que você já deveria ter acumulado.</p>
                 </div>
 
                 <div class="input-group" style="margin-top: 15px;">
@@ -202,15 +209,21 @@
 
         <!-- TAB: TRANSPARÊNCIA E RELATÓRIOS -->
         <div id="tab-transparencia" class="tab-content">
+            
             <h2 style="font-size: 18px; margin-bottom: 15px; color: var(--dark-blue);">Portal de Investimentos (Funaprev)</h2>
             <div class="card-info" style="padding-top: 10px;">
-                <p style="font-size: 13px; margin-bottom: 20px; color: var(--text-light);">Acesse os documentos oficiais e acompanhe a rentabilidade e composição da carteira de investimentos da Funaprev.</p>
+                <p style="font-size: 13px; margin-bottom: 20px; color: var(--text-light);">Acompanhe a rentabilidade e composição da carteira de investimentos do Funaprev.</p>
                 
-                <a href="https://www.funape.pe.gov.br/transparencia/investimentos" target="_blank" style="display: inline-block; margin-bottom: 25px; color: #fff; background-color: var(--primary-blue); padding: 10px 15px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 14px; width: 100%; text-align: center;">🌐 Acessar Portal Geral</a>
+                <div class="chart-container" style="height: 200px; margin-bottom: 15px;">
+                    <canvas id="chartFunaprevResumo"></canvas>
+                </div>
+                <button class="btn-action" style="background: #fff; color: var(--primary-blue); border: 1px solid var(--primary-blue); margin-bottom: 20px; font-size: 14px;" onclick="abrirComposicao('funaprev')">Ver Detalhamento da Carteira</button>
+
+                <a href="https://www.funape.pe.gov.br/transparencia/investimentos" target="_blank" style="display: inline-block; margin-bottom: 25px; color: #fff; background-color: var(--primary-blue); padding: 10px 15px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 14px; width: 100%; text-align: center;">🌐 Acessar Portal Funaprev</a>
 
                 <div class="list-relatorios" style="display: flex; flex-direction: column;">
                     <div>
-                        <strong style="font-size: 14px; color: var(--dark-blue);">Apresentação geral de Resultados da Carteira</strong><br>
+                        <strong style="font-size: 14px; color: var(--dark-blue);">Apresentação geral de Resultados</strong><br>
                         <a href="https://drive.expresso.pe.gov.br/s/MnSfUzGeEOUOWzU" target="_blank" class="link-relatorio">2026</a> <span style="color:#ccc;">|</span> <a href="https://drive.expresso.pe.gov.br/s/RnfvnCCxdDem6Vn" target="_blank" class="link-relatorio">Anos anteriores</a>
                     </div>
                     <div>
@@ -218,7 +231,7 @@
                         <a href="https://drive.expresso.pe.gov.br/s/P9R3pbw9sYUUbNC" target="_blank" class="link-relatorio">2026</a> <span style="color:#ccc;">|</span> <a href="https://drive.expresso.pe.gov.br/s/bTUiTqxqcxLRXCI" target="_blank" class="link-relatorio">Anos anteriores</a>
                     </div>
                     <div>
-                        <strong style="font-size: 14px; color: var(--dark-blue);">Relatórios Detalhados da Carteira</strong><br>
+                        <strong style="font-size: 14px; color: var(--dark-blue);">Relatórios Detalhados</strong><br>
                         <a href="https://drive.expresso.pe.gov.br/s/fzwJBtodeXKs6UR" target="_blank" class="link-relatorio">2026</a> <span style="color:#ccc;">|</span> <a href="https://drive.expresso.pe.gov.br/s/Owa5KXz66EWscZt" target="_blank" class="link-relatorio">Anos anteriores</a>
                     </div>
                     <div>
@@ -239,11 +252,11 @@
                     <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
 
                     <div>
-                        <strong style="font-size: 14px; color: var(--dark-blue);">Autorização de Aplicação e Resgate - APR</strong><br>
+                        <strong style="font-size: 14px; color: var(--dark-blue);">APR</strong><br>
                         <a href="https://drive.expresso.pe.gov.br/s/0r7QVGVfz8iiex8" target="_blank" class="link-relatorio">2026</a> <span style="color:#ccc;">|</span> <a href="https://drive.expresso.pe.gov.br/s/YUfegzsP2yiXEwF" target="_blank" class="link-relatorio">Anos anteriores</a>
                     </div>
                     <div>
-                        <strong style="font-size: 14px; color: var(--dark-blue);">Demonstrativo das Aplicações (DAIR)</strong><br>
+                        <strong style="font-size: 14px; color: var(--dark-blue);">DAIR</strong><br>
                         <a href="https://drive.expresso.pe.gov.br/s/Us8cjxSeojbzMYR" target="_blank" class="link-relatorio">2026</a> <span style="color:#ccc;">|</span> <a href="https://drive.expresso.pe.gov.br/s/GaCEDugD91L1Brk" target="_blank" class="link-relatorio">Anos anteriores</a>
                     </div>
                     <div>
@@ -252,10 +265,91 @@
                     </div>
                 </div>
             </div>
+
+            <h2 style="font-size: 18px; margin-bottom: 15px; color: var(--success); margin-top: 30px;">PE-PREVCOM</h2>
+            <div class="card-info" style="padding-top: 10px; border-top: 4px solid var(--success);">
+                <p style="font-size: 13px; margin-bottom: 20px; color: var(--text-light);">Acompanhe a rentabilidade e composição da carteira de investimentos da Previdência Complementar.</p>
+
+                <div class="chart-container" style="height: 200px; margin-bottom: 15px;">
+                    <canvas id="chartPeprevcomResumo"></canvas>
+                </div>
+                <button class="btn-action" style="background: #fff; color: var(--success); border: 1px solid var(--success); margin-bottom: 20px; font-size: 14px;" onclick="abrirComposicao('peprevcom')">Ver Detalhamento da Carteira</button>
+
+                <a href="https://bbprevidencia.com.br/peprevcom" target="_blank" style="display: inline-block; margin-bottom: 25px; color: #fff; background-color: var(--success); padding: 10px 15px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 14px; width: 100%; text-align: center;">🌐 Acessar Portal PE-PREVCOM</a>
+
+                <div class="list-relatorios" style="display: flex; flex-direction: column;">
+                    <h3 style="font-size: 15px; color: var(--dark-blue); margin-bottom: 10px;">Conteúdos em Destaque (Blog BBP)</h3>
+                    <div>
+                        <a href="/peprevcom/blogbbp/boletim-economico/boletim-economico-maio-2026" target="_blank" class="link-relatorio" style="display: block; font-weight: bold; font-size: 14px;">Boletim Econômico - Maio 2026</a>
+                        <span style="font-size: 12px; color: #888;">12 maio</span>
+                    </div>
+                    <div>
+                        <a href="/peprevcom/blogbbp/boletim-economico/boletim-economico-abril-2026-2" target="_blank" class="link-relatorio" style="display: block; font-weight: bold; font-size: 14px;">Boletim Econômico - Abril 2026</a>
+                        <span style="font-size: 12px; color: #888;">17 abril</span>
+                    </div>
+                    <div>
+                        <a href="/peprevcom/blogbbp/boletim-economico/boletim-economico-marco-2026" target="_blank" class="link-relatorio" style="display: block; font-weight: bold; font-size: 14px;">Boletim Econômico - Março 2026</a>
+                        <span style="font-size: 12px; color: #888;">13 março</span>
+                    </div>
+
+                    <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
+                    
+                    <h3 style="font-size: 15px; color: var(--dark-blue); margin-bottom: 10px;">Documentos para downloads</h3>
+                    <div>
+                        <a href="https://bbprevidencia.com.br/blog/wp-content/uploads/2025/03/PE-PREVCOM-Politica-de-Investimentos-2026-2030.pdf" target="_blank" class="link-relatorio" style="display: block; margin-bottom: 12px; font-size: 14px;">📄 Política de Investimentos 2026-2030</a>
+                        <a href="https://bbprevidencia.com.br/blog/wp-content/uploads/2025/05/REG_-_0003_Regulamento_PGA-1.pdf" target="_blank" class="link-relatorio" style="display: block; margin-bottom: 12px; font-size: 14px;">📄 Regulamento PGA</a>
+                        <a href="https://bbprevidencia.com.br/blog/wp-content/uploads/2025/03/PGA-Politica-de-Investimentos-2026-2030.pdf" target="_blank" class="link-relatorio" style="display: block; margin-bottom: 12px; font-size: 14px;">📄 Política de Investimentos PGA 2026-2030</a>
+                        <a href="https://bbprevidencia.com.br/blog/wp-content/uploads/2024/02/POL-0023-Politica-de-Governanca-de-Investimentos-1.pdf" target="_blank" class="link-relatorio" style="display: block; margin-bottom: 12px; font-size: 14px;">📄 Política de Governança de Investimentos</a>
+                        <a href="https://bbprevidencia.com.br/blog/wp-content/uploads/2024/01/CALENDARIO-DE-PAGAMENTOS-2026.pdf" target="_blank" class="link-relatorio" style="display: block; margin-bottom: 12px; font-size: 14px;">📄 Cronograma Pagamento de Benefício</a>
+                        <a href="https://bbprevidencia.com.br/blog/wp-content/uploads/2023/10/Guia-LGPD-BBP-2023-1-1-06.10.23.pdf" target="_blank" class="link-relatorio" style="display: block; margin-bottom: 12px; font-size: 14px;">📄 Guia LGPD</a>
+                        <a href="https://bbprevidencia.com.br/blog/wp-content/uploads/2023/07/Sem-titulo-1-Estatuto-BB-Previdencia-2.pdf" target="_blank" class="link-relatorio" style="display: block; margin-bottom: 12px; font-size: 14px;">📄 Estatuto BB Previdência</a>
+                        <a href="https://bbprevidencia.com.br/blog/wp-content/uploads/2023/07/Regulamento-PE-PREVCOM.pdf" target="_blank" class="link-relatorio" style="display: block; font-size: 14px;">📄 Regulamento Pe-Prevcom</a>
+                    </div>
+
+                    <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
+                    
+                    <h3 style="font-size: 15px; color: var(--dark-blue); margin-bottom: 10px;">Demonstrativos e formulários</h3>
+                    <div>
+                        <a href="/peprevcom/demonstrativos-e-formularios/balancetes" target="_blank" class="link-relatorio" style="display: block; margin-bottom: 8px; font-size: 14px;">Balancetes</a>
+                        <a href="/peprevcom/demonstrativos-e-formularios/demonstrativo-de-investimentos" target="_blank" class="link-relatorio" style="display: block; margin-bottom: 8px; font-size: 14px;">Demonstrativo de Investimentos</a>
+                        <a href="/peprevcom/demonstrativos-e-formularios/formularios" target="_blank" class="link-relatorio" style="display: block; margin-bottom: 8px; font-size: 14px;">Formulários</a>
+                        <a href="/peprevcom/demonstrativos-e-formularios/informe-mensal-do-participante" target="_blank" class="link-relatorio" style="display: block; margin-bottom: 8px; font-size: 14px;">Informe Mensal do Participante</a>
+                        <a href="/peprevcom/demonstrativos-e-formularios/relatorio-anual" target="_blank" class="link-relatorio" style="display: block; font-size: 14px;">Relatório Anual</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- TELA: COMPOSICAO CARTEIRA (NOVA) -->
+    <div id="view-composicao" class="view">
+        <div class="header-prev" style="background-color: var(--dark-blue); color: white;">
+            <button class="btn-voltar" style="color: white;" onclick="fecharComposicao()">←</button>
+            <h2 id="titulo-composicao" style="font-size: 18px;">Composição da Carteira</h2>
+        </div>
+        
+        <div class="content-prev">
+            <div class="card-info" style="text-align: center; border: 2px solid #e2e8f0;">
+                <p style="font-size: 12px; color: var(--text-light); text-transform: uppercase; font-weight: bold;">Patrimônio Total</p>
+                <h2 id="comp-total-valor" style="color: var(--primary-blue); font-size: 24px; margin: 10px 0;">R$ 0,00</h2>
+            </div>
+            
+            <h3 style="font-size: 14px; margin-bottom: 10px; color: var(--dark-blue);">Alocação por Classe de Ativo</h3>
+            <div class="card-info">
+                <div class="chart-container" style="height: 250px;">
+                    <canvas id="chartComposicaoDetalhe"></canvas>
+                </div>
+            </div>
+
+            <h3 style="font-size: 14px; margin-bottom: 10px; color: var(--dark-blue);">Detalhamento de Ativos</h3>
+            <div id="lista-ativos-container" style="display: flex; flex-direction: column; gap: 10px;">
+                <!-- Preenchido via JS -->
+            </div>
         </div>
     </div>
 
-    <!-- TELA: DETALHAMENTO (NOVA TELA DE EXTRATO) -->
+    <!-- TELA: DETALHAMENTO (EXTRATO ANUAL) -->
     <div id="view-detalhes" class="view">
         <div class="header-prev" style="background-color: var(--dark-blue); color: white;">
             <button class="btn-voltar" style="color: white;" onclick="fecharDetalhamento()">←</button>
