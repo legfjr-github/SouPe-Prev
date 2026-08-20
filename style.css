@@ -175,6 +175,7 @@ body {
     background: none;
     border: none;
     font-size: 20px;
+    color: var(--dark-blue);
     cursor: pointer;
 }
 
@@ -231,7 +232,7 @@ body {
     font-size: 12px;
 }
 .sub-tab-btn.active {
-    color: #4CAF50; /* Verde padrão da imagem */
+    color: #4CAF50;
     border-bottom-color: #4CAF50;
 }
 .sub-tab-content {
